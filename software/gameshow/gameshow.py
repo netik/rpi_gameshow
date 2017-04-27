@@ -223,7 +223,7 @@ def nameedit_modal():
     ypos = height + 30
 
     # draw help text
-    ptext.draw("Player Names",
+    ptext.draw("Edit Player Names (ESC to exit)",
                centerx=screenInfo.current_w/2,
                centery=ypos,
                fontname="fonts/RobotoCondensed-Bold.ttf", fontsize=50)
@@ -254,26 +254,36 @@ def nameedit_modal():
                 draw_scores()
                 return
 
+                
             # Feed it with events every frame
-            if textinput.update(events):
+            if event.type == pygame.KEYDOWN and (event.key == pygame.K_UP or event.key == pygame.K_DOWN) or textinput.update(events):
                 # store the old data
                 player_names[editing] = textinput.get_text()
                 pygame.draw.rect(screen, (60,60,60),
                              (xpos-4, height+136 + (editing * 120), screenInfo.current_w - (width * 2) - 120,46))
                 
-                drawtext("robo36", player_names[editing], xpos, height + 140 + (120 * editing), (255,255,0), (60,60,60))
-                # move to the next row
-                editing = editing + 1
+                drawtext("robo36", player_names[editing], xpos, height + 140 + (120 * editing), (255,255,0), (60,60,60))            
+                
+                # move to the next row or go up if requested
+                if (event.type == pygame.KEYDOWN and event.key == pygame.K_UP):
+                    editing = editing - 1
+                else:
+                    editing = editing + 1
+
                 if editing > 3:
                     editing = 0
-                    
+
+                if editing < 0:
+                    editing = 3
                 # get us a new object for this row
                 del textinput
                 textinput = pygame_textinput.TextInput(text_color=(255,255,0),
                                                        cursor_color=(255,255,255),
                                                        font_size=50,
                                                        value=player_names[editing])
-                
+                # break so we don't overprocess events
+                break
+            
             # clear the region
             pygame.draw.rect(screen, (30,30,30),
                              (xpos-4, height+136 + (editing * 120), screenInfo.current_w - (width * 2) - 120,46))
