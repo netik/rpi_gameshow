@@ -13,9 +13,12 @@ import RPi.GPIO as GPIO
 
 # config
 PLAYERS=4
-MAXCLOCK=60000 # in microseconds!
+MAXCLOCK=5000 # in microseconds!
+CLOCK_STEP=100 # mS
 CLOCKEVENT=pygame.USEREVENT + 1
 SOUNDSET=2
+TITLE="The Dirty Talk Game Show"
+LOGO="images/logo.jpg"
 
 # GPIO Pinout
 player_map = [ 16, 17, 18, 19 ]
@@ -87,6 +90,9 @@ def cleardisplay():
 def initgame():
     global screen,screenInfo
     # init the system, get screen metrics
+    # enable sound
+    pygame.mixer.pre_init(44100, -16, 2, 512)
+    pygame.mixer.init()
     pygame.init()
     screenInfo = pygame.display.Info()
     screen = pygame.display.set_mode((screenInfo.current_w, screenInfo.current_h), pygame.FULLSCREEN)
@@ -94,9 +100,6 @@ def initgame():
     # hide mouse
     pygame.mouse.set_visible(False)
 
-    # enable sound
-    pygame.mixer.init()
-     
     cleardisplay
     
     # load fonts
@@ -123,14 +126,14 @@ def buzzin(playerno):
     msg = "--- Player %d: %s ---" % (playerno + 1, player_names[playerno])
     ptext.draw(msg,
                centerx=screenInfo.current_w/2,
-               centery=screenInfo.current_h/3+140,
-               owidth=1, ocolor=(255,255,255), color=(255,0,0),
+               centery=screenInfo.current_h/3+160,
+               owidth=1, ocolor=(180,0,0), color=(255,255,255),
                fontname="fonts/RobotoCondensed-Bold.ttf", fontsize=90)
 
     pygame.display.flip()
 
     # play sound
-    pygame.mixer.music.load("sounds/Soundsets/2/BUZZ.mp3")
+    pygame.mixer.music.load("sounds/Soundsets/%d/BUZZ.mp3" % SOUNDSET)
     pygame.mixer.music.play()
 
     # light player buzzer
@@ -157,7 +160,7 @@ def draw_scores():
         ptext.draw(player_names[i-1],
                    centerx=(screenInfo.current_w/8 * ((i*2)-1)),
                    centery=screenInfo.current_h/2+200,
-                   color="white",
+                   color=(180,180,180),
                    fontname="fonts/RobotoCondensed-Bold.ttf",
                    fontsize=80)
         
@@ -189,10 +192,10 @@ def reset_game():
     draw_clock()
 
 def draw_title():
-    img = pygame.image.load('images/logo.jpg')
+    img = pygame.image.load(LOGO)
     screen.blit(img,(0,0))
     screen.blit(img,(screenInfo.current_w - img.get_width(),0))
-    ptext.draw("The Dirty Talk Game Show",
+    ptext.draw(TITLE,
                centerx=screenInfo.current_w/2, centery=50,
                color="pink", gcolor="red",
                fontname="fonts/RobotoCondensed-Bold.ttf", fontsize=80)
@@ -366,9 +369,9 @@ def draw_clock():
     minutes = (clock / 60000)
     sec = (clock - (minutes * 60000) ) / 1000
     pygame.draw.rect(screen, (0,0,0),
-                     (0, screenInfo.current_h/3-80, screenInfo.current_w, screenInfo.current_h/3+80));
+                     (0, screenInfo.current_h/3-90, screenInfo.current_w, screenInfo.current_h/3+90));
 
-    ptext.draw("%d:%02d" % (minutes, sec), centerx=screenInfo.current_w/2, centery=screenInfo.current_h/3, color="pink", gcolor="red", fontname="fonts/RobotoCondensed-Bold.ttf", fontsize=200)
+    ptext.draw("%d:%02d" % (minutes, sec), centerx=screenInfo.current_w/2, centery=screenInfo.current_h/3, color="pink", gcolor="red", fontname="fonts/RobotoCondensed-Bold.ttf", fontsize=250)
     statestr = ""
 
     if state == GameState.TIMEUP:
@@ -381,7 +384,7 @@ def draw_clock():
         statestr = ""
         
     ptext.draw(statestr,
-               centerx=screenInfo.current_w/2, centery=screenInfo.current_h/3+140,
+               centerx=screenInfo.current_w/2, centery=screenInfo.current_h/3+160,
                color="purple",
                fontname="fonts/RobotoCondensed-Bold.ttf", fontsize=90)
     
@@ -398,7 +401,7 @@ draw_scores()
 # main event loop
 i = 0
 running = 1
-pygame.time.set_timer(CLOCKEVENT, 250)
+pygame.time.set_timer(CLOCKEVENT, CLOCK_STEP)
 
 while running:
     # we do not poll here because it will induce very high cpu.
@@ -467,9 +470,12 @@ while running:
                 clear_leds()
                 if (state == GameState.BUZZIN):
                     state = GameState.RUNNING
+                    pygame.mixer.music.load("sounds/Soundsets/%d/TIMESUP.mp3" % SOUNDSET)
                 else:
                     if (state == GameState.IDLE):
                         state = GameState.RUNNING
+                        # preload audio
+                        pygame.mixer.music.load("sounds/Soundsets/%d/TIMESUP.mp3" % SOUNDSET)
                     else:
                         if (state == GameState.TIMEUP):
                             # you can either add time here, or if we
@@ -484,14 +490,13 @@ while running:
         if event.type == CLOCKEVENT:
             if clock > 0:
                 if state == GameState.RUNNING: 
-                    clock = clock - 250
+                    clock = clock - CLOCK_STEP
                     # handle timeout
                     if clock == 0:
                         # play sound
                         for i in range(0, PLAYERS):
                             GPIO.output(led_map[i],True)
-
-                        pygame.mixer.music.load("sounds/Soundsets/2/TIMESUP.mp3")
+                        pygame.mixer.music.load("sounds/Soundsets/%d/TIMESUP.mp3" % SOUNDSET)
                         pygame.mixer.music.play()
                         state = GameState.TIMEUP
                         
