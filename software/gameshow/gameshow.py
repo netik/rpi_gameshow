@@ -20,7 +20,8 @@ SOUNDSET=2
 player_map = [ 16, 17, 18, 19 ]
 reverse_map = { 16: 0, 17: 1, 18: 2, 19: 3 }
 led_map = [ 20, 21, 22, 23 ]
-buzzedin = -1
+
+player_names = []
 
 # working dir
 os.chdir("/home/pi/src/gameshow")
@@ -30,7 +31,8 @@ class GameState:
     RUNNING = 1,
     BUZZIN = 2,
     TIMEUP = 3,
-    SETUP = 4
+    INPUT = 4,
+    HELP = 5
 
 # globals
 clock = MAXCLOCK
@@ -38,18 +40,22 @@ fonts = {}
 colors = {}
 screen = None
 scores = [0,0,0,0]
-state = GameState.IDLE
+
+# "attract" mode, run when game idle
 blinky = 0
 
+# game state
+buzzedin = -1
+state = GameState.IDLE
+
 # I have no idea where these warnings are coming from on pin 20, let's disable them.
+# maybe it's complaining because pin 20 is MOSI/SPI but we're not using that and everything works fine.
 GPIO.setwarnings(False)
 
 def button_event(channel):
+    # remember the event, we will handle this on the next clock tick
     global buzzedin
-
-    print "button"
     buzzedin = reverse_map[channel]
-    print "channel %d set to %d" % (channel, buzzedin)
     
 def clear_leds():
     for k in led_map:
@@ -79,10 +85,9 @@ def cleardisplay():
 
 def initgame():
     global screen,screenInfo
-    # init the system
+    # init the system, get screen metrics
     pygame.init()
     screenInfo = pygame.display.Info()
-
     screen = pygame.display.set_mode((screenInfo.current_w, screenInfo.current_h), pygame.FULLSCREEN)
 
     # hide mouse
@@ -97,6 +102,10 @@ def initgame():
     loadfont("bebas40", "BebasKai-Regular.otf", 40)
     loadfont("robo36", "RobotoCondensed-Bold.ttf", 36)
 
+    # set player names
+    for i in range(0,PLAYERS):
+        player_names.append("Player %d" % (i+1))
+    
 def initpalette():
     colors['white'] = pygame.Color(255,255,255)
     colors['grey'] = pygame.Color(164, 164, 164, 255)
@@ -110,7 +119,7 @@ def buzzin(playerno):
     # draw their name 
     pygame.draw.rect(screen, (0,0,0),
                      (0, screenInfo.current_h/3+100, screenInfo.current_w, 200))
-    msg = "--- Player %d ---" % (playerno + 1)
+    msg = "--- Player %d: %s ---" % (playerno + 1, player_names[playerno])
     ptext.draw(msg,
                centerx=screenInfo.current_w/2,
                centery=screenInfo.current_h/3+140,
@@ -134,11 +143,17 @@ def buzzin(playerno):
     
 def draw_scores(): 
     i=1
+
     pygame.draw.rect(screen, (0,0,0),
                      (0, screenInfo.current_h/2+150, screenInfo.current_w, screenInfo.current_h));
 
     while i<5:
-        ptext.draw("Player %d" % i,
+        if buzzedin == (i-1):
+            # make blue if they are buzzed in 
+            pygame.draw.rect(screen, (0,0,200),
+                             ((i-1) * screenInfo.current_w/4, screenInfo.current_h/2+150, (screenInfo.current_w/4), screenInfo.current_h));
+            
+        ptext.draw(player_names[i-1],
                    centerx=(screenInfo.current_w/8 * ((i*2)-1)),
                    centery=screenInfo.current_h/2+200,
                    color="white",
@@ -161,14 +176,16 @@ def draw_scores():
     pygame.display.flip()
 
 def reset_game():
-    global scores
-    global clock
-    
+    global scores, clock, state, buzzedin
     i = 0
     while i < 4:
         scores[i] = 0
         i = i + 1
     clock = MAXCLOCK
+    state = GameState.IDLE
+    buzzedin = -1
+
+    draw_clock()
 
 def draw_title():
     img = pygame.image.load('images/logo.jpg')
@@ -180,6 +197,76 @@ def draw_title():
                fontname="fonts/RobotoCondensed-Bold.ttf", fontsize=80)
     pygame.display.flip()
 
+
+def draw_help():
+    global state
+
+    helpstr = [ { "key": "SPACE", "text": "Stop/Start clock" },
+                { "key": "ESC" , "text": "Quit" },
+                { "key": "H or ?" , "text": "HELP" },
+                { "key": "1" , "text": "+1 point Player 1" },
+                { "key": "2" , "text": "+1 point Player 2" },
+                { "key": "3" , "text": "+1 point Player 3" },
+                { "key": "4" , "text": "+1 point Player 4" },
+                { "key": "Q" , "text": "-1 point Player 1" },
+                { "key": "W" , "text": "-1 point Player 2" },
+                { "key": "E" , "text": "-1 point Player 3" },
+                { "key": "R" , "text": "-1 point Player 4" },
+                { "key": "P" , "text": "Clock: +5 seconds" },
+                { "key": "L" , "text": "Clock: +5 seconds" },
+                { "key": "N" , "text": "Name Players" },
+                { "key": "SHIFT-Z" , "text": "Reset game" },
+                
+            ]
+
+    # draw a modal box at 85% of the screen. Stop the clock.
+    state = GameState.HELP
+
+    # black out that box
+    width = screenInfo.current_w * .15  # 85% total
+    height = screenInfo.current_h * .10 # 75% total
+
+    # inside box
+    pygame.draw.rect(screen, (60,60,60),
+                     (width, height, screenInfo.current_w - (width * 2), screenInfo.current_h - (height*2)));
+    # outside perimeter
+    pygame.draw.rect(screen, (210,0,100),
+                     (width, height, screenInfo.current_w - (width * 2), screenInfo.current_h - (height*2)), 2);
+
+    xpos = width + 60
+    ypos = height + 30
+
+    # draw help text
+    ptext.draw("HELP",
+               centerx=screenInfo.current_w/2,
+               centery=ypos,
+               fontname="fonts/RobotoCondensed-Bold.ttf", fontsize=50)
+
+    ypos = ypos + 60
+
+    for k in helpstr:
+        drawtext("robo36", k["key"], xpos, ypos, (255,255,255), (60,60,60))
+        drawtext("robo36", k["text"], screenInfo.current_w/2, ypos, (255,255,255), (60,60,60))
+        ypos = ypos + fonts["robo36"].get_sized_height()
+        
+    pygame.display.flip()
+
+    # block for keypress
+    waiting = True
+    while waiting: 
+        e = pygame.event.wait()
+        if e.type == pygame.KEYDOWN:
+            waiting = False
+
+    pygame.display.flip()
+    
+    state = GameState.IDLE
+    cleardisplay()
+    draw_title()
+    draw_clock()
+    draw_scores()
+
+        
 def draw_clock():
     minutes = (clock / 60000)
     sec = (clock - (minutes * 60000) ) / 1000
@@ -230,7 +317,7 @@ while running:
             #
             # 1,2,3,4 = Adds a point to that player 1,2,3,4
             # q,w,e,r = Deduct a point from player 1,2,3,4
-            # z = reset round
+            # shift-z = reset round
             #
             if event.key == pygame.K_1:
                 scores[0] += 1
@@ -268,10 +355,14 @@ while running:
                 draw_clock()
 
             # zero
-            if event.key == pygame.K_z:
+            if event.key == pygame.K_z and pygame.key.get_mods() & pygame.KMOD_SHIFT:
                 reset_game()
-            
-            draw_scores()
+
+            if event.key == pygame.K_h:
+                draw_help()
+
+            if state != GameState.HELP: 
+                draw_scores()
 
             # space -- transitions state 
             if event.key == pygame.K_SPACE:
@@ -290,7 +381,8 @@ while running:
                             state = GameState.RUNNING
                         else:
                             state = GameState.IDLE
-                
+                draw_clock()
+                            
         if event.type == CLOCKEVENT:
             if clock > 0:
                 if state == GameState.RUNNING: 
@@ -298,7 +390,7 @@ while running:
                     # handle timeout
                     if clock == 0:
                         # play sound
-                        for i in range(0, PLAYERS-1):
+                        for i in range(0, PLAYERS):
                             GPIO.output(led_map[i],True)
 
                         pygame.mixer.music.load("sounds/Soundsets/2/TIMESUP.mp3")
@@ -313,7 +405,7 @@ while running:
                 if blinky > PLAYERS-1:
                     blinky = 0
 
-                for i in range(0, PLAYERS-1):
+                for i in range(0, PLAYERS):
                     GPIO.output(led_map[i],False)
 
                 GPIO.output(led_map[blinky], True)
@@ -322,4 +414,5 @@ while running:
             # now handle player buzz-in
             if state == GameState.RUNNING:
                 buzzin(buzzedin)
+                draw_scores()
             buzzedin = -1
