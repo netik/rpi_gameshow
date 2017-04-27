@@ -13,7 +13,7 @@ import RPi.GPIO as GPIO
 
 # config
 PLAYERS=4
-MAXCLOCK=5000 # in microseconds!
+MAXCLOCK=60000 # in microseconds!
 CLOCK_STEP=100 # mS
 CLOCKEVENT=pygame.USEREVENT + 1
 SOUNDSET=2
@@ -468,6 +468,7 @@ while running:
             # space -- transitions state 
             if event.key == pygame.K_SPACE:
                 clear_leds()
+                buzzedin=-1
                 if (state == GameState.BUZZIN):
                     state = GameState.RUNNING
                     pygame.mixer.music.load("sounds/Soundsets/%d/TIMESUP.mp3" % SOUNDSET)
