@@ -258,25 +258,27 @@ def nameedit_modal():
             if textinput.update(events):
                 # store the old data
                 player_names[editing] = textinput.get_text()
-
+                pygame.draw.rect(screen, (60,60,60),
+                             (xpos-4, height+136 + (editing * 120), screenInfo.current_w - (width * 2) - 120,46))
+                
+                drawtext("robo36", player_names[editing], xpos, height + 140 + (120 * editing), (255,255,0), (60,60,60))
                 # move to the next row
                 editing = editing + 1
                 if editing > 3:
                     editing = 0
                     
                 # get us a new object for this row
+                del textinput
                 textinput = pygame_textinput.TextInput(text_color=(255,255,0),
                                                        cursor_color=(255,255,255),
                                                        font_size=50,
                                                        value=player_names[editing])
                 
-            # Blit its surface onto the screen
-
-            # clear the region?
+            # clear the region
             pygame.draw.rect(screen, (30,30,30),
-                             (xpos-4, height+136, screenInfo.current_w - (width * 2) - 120,46))
-            
-            screen.blit(textinput.get_surface(), (xpos, height+140))
+                             (xpos-4, height+136 + (editing * 120), screenInfo.current_w - (width * 2) - 120,46))
+            # Blit its surface onto the screen
+            screen.blit(textinput.get_surface(), (xpos, height+140 + (editing * 120)))
             
         pygame.display.update()
         clock.tick(60)
