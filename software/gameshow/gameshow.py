@@ -14,7 +14,7 @@ import RPi.GPIO as GPIO
 # config
 PLAYERS=4
 MAXCLOCK=60000 # in microseconds!
-CLOCK_STEP=100 # mS
+CLOCK_STEP=250 # mS
 CLOCKEVENT=pygame.USEREVENT + 1
 SOUNDSET=2
 TITLE="The Dirty Talk Game Show"
@@ -311,7 +311,7 @@ def draw_help():
                 { "key": "E" , "text": "-1 point Player 3" },
                 { "key": "R" , "text": "-1 point Player 4" },
                 { "key": "P" , "text": "Clock: +5 seconds" },
-                { "key": "L" , "text": "Clock: +5 seconds" },
+                { "key": "L" , "text": "Clock: -5 seconds" },
                 { "key": "N" , "text": "Name Players" },
                 { "key": "SHIFT-Z" , "text": "Reset game" },
                 
@@ -520,3 +520,6 @@ while running:
                 buzzin(buzzedin)
                 draw_scores()
             buzzedin = -1
+
+    pygame.time.Clock().tick(20)
+    
