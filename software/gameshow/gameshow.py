@@ -4,6 +4,7 @@
 #
 
 import pygame
+import pygame_textinput    # from https://github.com/Nearoo/pygame-text-input
 import ptext
 import pygame.freetype
 import os
@@ -197,12 +198,94 @@ def draw_title():
                fontname="fonts/RobotoCondensed-Bold.ttf", fontsize=80)
     pygame.display.flip()
 
+def nameedit_modal():
+    global state
+    state = GameState.INPUT
 
+    # which name we are editing
+    editing = 0
+    
+    # draw a modal box at 85% of the screen. Stop the clock.
+    state = GameState.HELP
+
+    # black out the modal
+    width = screenInfo.current_w * .15  # 85% total
+    height = screenInfo.current_h * .10 # 75% total
+
+    # inside modal
+    pygame.draw.rect(screen, (60,60,60),
+                     (width, height, screenInfo.current_w - (width * 2), screenInfo.current_h - (height*2)));
+    # outside edge
+    pygame.draw.rect(screen, (210,0,100),
+                     (width, height, screenInfo.current_w - (width * 2), screenInfo.current_h - (height*2)), 2);
+
+    xpos = width + 60
+    ypos = height + 30
+
+    # draw help text
+    ptext.draw("Player Names",
+               centerx=screenInfo.current_w/2,
+               centery=ypos,
+               fontname="fonts/RobotoCondensed-Bold.ttf", fontsize=50)
+
+    ypos = ypos + 60
+
+    for i in range(0, PLAYERS):
+        drawtext("robo36", "Player %d" % (i + 1), xpos, ypos, (255,255,255), (60,60,60))
+        drawtext("robo36", player_names[i], xpos, height + 140 + (120 * i), (255,255,0), (60,60,60))
+        ypos = ypos + 120 
+
+    clock = pygame.time.Clock()
+    textinput = pygame_textinput.TextInput(text_color=(255,255,0),
+                                           cursor_color=(255,255,255),
+                                           font_size=50,
+                                           value=player_names[editing])
+    while True:
+        events = pygame.event.get()
+        for event in events:
+            if event.type == pygame.QUIT:
+                exit()
+
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                state = GameState.IDLE
+                cleardisplay()
+                draw_title()
+                draw_clock()
+                draw_scores()
+                return
+
+            # Feed it with events every frame
+            if textinput.update(events):
+                # store the old data
+                player_names[editing] = textinput.get_text()
+
+                # move to the next row
+                editing = editing + 1
+                if editing > 3:
+                    editing = 0
+                    
+                # get us a new object for this row
+                textinput = pygame_textinput.TextInput(text_color=(255,255,0),
+                                                       cursor_color=(255,255,255),
+                                                       font_size=50,
+                                                       value=player_names[editing])
+                
+            # Blit its surface onto the screen
+
+            # clear the region?
+            pygame.draw.rect(screen, (30,30,30),
+                             (xpos-4, height+136, screenInfo.current_w - (width * 2) - 120,46))
+            
+            screen.blit(textinput.get_surface(), (xpos, height+140))
+            
+        pygame.display.update()
+        clock.tick(60)
+    
 def draw_help():
     global state
 
     helpstr = [ { "key": "SPACE", "text": "Stop/Start clock" },
-                { "key": "ESC" , "text": "Quit" },
+                { "key": "SHIFT-ESC" , "text": "Quit" },
                 { "key": "H or ?" , "text": "HELP" },
                 { "key": "1" , "text": "+1 point Player 1" },
                 { "key": "2" , "text": "+1 point Player 2" },
@@ -308,7 +391,7 @@ pygame.time.set_timer(CLOCKEVENT, 250)
 while running:
     # we do not poll here because it will induce very high cpu.
     for event in pygame.event.get():
-        if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+        if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE and pygame.key.get_mods() & pygame.KMOD_SHIFT):
             running = 0
 
         # player scores
@@ -361,6 +444,9 @@ while running:
             if event.key == pygame.K_h:
                 draw_help()
 
+            if event.key == pygame.K_n:
+                nameedit_modal()
+                
             if state != GameState.HELP: 
                 draw_scores()
 
