@@ -30,6 +30,9 @@ player_names = []
 # working dir
 os.chdir("/home/pi/src/gameshow")
 
+# can't hurt. 
+os.system("/usr/bin/amixer set PCM -- 1000")
+
 class GameState:
     IDLE = 0,
     RUNNING = 1,
@@ -91,7 +94,7 @@ def initgame():
     global screen,screenInfo
     # init the system, get screen metrics
     # enable sound
-    pygame.mixer.pre_init(44100, -16, 2, 512)
+    pygame.mixer.pre_init(44100, -16, 2, 2048)
     pygame.mixer.init()
     pygame.init()
     screenInfo = pygame.display.Info()
