@@ -190,7 +190,15 @@ def reset_game():
     buzzedin = -1
 
     draw_clock()
+    
+def reset_clock():
+    global scores, clock, state, buzzedin
+    clock = MAXCLOCK
+    state = GameState.IDLE
+    buzzedin = -1
 
+    draw_clock()
+        
 def draw_title():
     img = pygame.image.load(LOGO)
     screen.blit(img,(0,0))
@@ -313,8 +321,8 @@ def draw_help():
                 { "key": "P" , "text": "Clock: +5 seconds" },
                 { "key": "L" , "text": "Clock: -5 seconds" },
                 { "key": "N" , "text": "Name Players" },
-                { "key": "SHIFT-Z" , "text": "Reset game" },
-                
+                { "key": "SHIFT-A" , "text": "Reset game" },
+                { "key": "SHIFT-Z" , "text": "Reset Clock" },                
             ]
 
     # draw a modal box at 85% of the screen. Stop the clock.
@@ -455,6 +463,9 @@ while running:
             # zero
             if event.key == pygame.K_z and pygame.key.get_mods() & pygame.KMOD_SHIFT:
                 reset_game()
+                
+            if event.key == pygame.K_a and pygame.key.get_mods() & pygame.KMOD_SHIFT:
+                reset_clock()
 
             if event.key == pygame.K_h:
                 draw_help()
