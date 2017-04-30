@@ -330,7 +330,7 @@ def draw_help():
 
     # black out that box
     width = screenInfo.current_w * .15  # 85% total
-    height = screenInfo.current_h * .10 # 75% total
+    height = screenInfo.current_h * .08 # 75% total
 
     # inside box
     pygame.draw.rect(screen, (60,60,60),
@@ -423,6 +423,7 @@ while running:
             #
             # 1,2,3,4 = Adds a point to that player 1,2,3,4
             # q,w,e,r = Deduct a point from player 1,2,3,4
+            # shift-a = reset all
             # shift-z = reset round
             #
             if event.key == pygame.K_1:
@@ -460,11 +461,12 @@ while running:
                     clock = 0
                 draw_clock()
 
-            # zero
-            if event.key == pygame.K_z and pygame.key.get_mods() & pygame.KMOD_SHIFT:
-                reset_game()
-                
+            # reset all 
             if event.key == pygame.K_a and pygame.key.get_mods() & pygame.KMOD_SHIFT:
+                reset_game()
+
+            # reset round
+            if event.key == pygame.K_z and pygame.key.get_mods() & pygame.KMOD_SHIFT:
                 reset_clock()
 
             if event.key == pygame.K_h:
