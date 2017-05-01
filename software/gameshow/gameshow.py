@@ -220,7 +220,7 @@ def nameedit_modal():
     editing = 0
     
     # draw a modal box at 85% of the screen. Stop the clock.
-    state = GameState.HELP
+    state = GameState.SETUP
 
     # black out the modal
     width = screenInfo.current_w * .15  # 85% total
@@ -228,15 +228,15 @@ def nameedit_modal():
 
     # inside modal
     pygame.draw.rect(screen, (60,60,60),
-                     (width, height, screenInfo.current_w - (width * 2), screenInfo.current_h - (height*2)));
+                     (width, height, screenInfo.current_w - (width * 2), screenInfo.current_h) - (height*2))
     # outside edge
     pygame.draw.rect(screen, (210,0,100),
-                     (width, height, screenInfo.current_w - (width * 2), screenInfo.current_h - (height*2)), 2);
+                     (width, height, screenInfo.current_w - (width * 2), screenInfo.current_h - (height*2), 2))
 
     xpos = width + 60
     ypos = height + 30
 
-    # draw help text
+    # Draw Names
     ptext.draw("Edit Player Names (ESC to exit)",
                centerx=screenInfo.current_w/2,
                centery=ypos,
@@ -323,6 +323,8 @@ def draw_help():
                 { "key": "R" , "text": "-1 point Player 4" },
                 { "key": "P" , "text": "Clock: +5 seconds" },
                 { "key": "L" , "text": "Clock: -5 seconds" },
+                { "key": "T" , "text": "Play a \"time's up\" sound" },
+                { "key": "B" , "text": "Play a buzzer sound" },
                 { "key": "N" , "text": "Name Players" },
                 { "key": "SHIFT-A" , "text": "Reset game" },
                 { "key": "SHIFT-Z" , "text": "Reset Clock" },                
@@ -333,7 +335,7 @@ def draw_help():
 
     # black out that box
     width = screenInfo.current_w * .15  # 85% total
-    height = screenInfo.current_h * .08 # 75% total
+    height = 10
 
     # inside box
     pygame.draw.rect(screen, (60,60,60),
@@ -453,6 +455,16 @@ while running:
             if event.key == pygame.K_r:
                 scores[3] -= 1
 
+            # sounds
+            if event.key == pygame.K_b:
+                pygame.mixer.music.load("sounds/misc/buzzer.mp3")
+                pygame.mixer.music.play()
+
+            if event.key == pygame.K_t:
+                pygame.mixer.music.load("sounds/misc/timesup.mp3")
+                pygame.mixer.music.play()
+
+                
             # clock changes
             if event.key == pygame.K_p:
                 clock = clock + 5000
