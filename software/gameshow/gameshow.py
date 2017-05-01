@@ -33,15 +33,19 @@ os.chdir("/home/pi/src/gameshow")
 # can't hurt. 
 os.system("/usr/bin/amixer set PCM -- 1000")
 
+# force 1/8" output no matter what
+os.system("/usr/bin/amixer cset numid-3 1")
+
 class GameState:
     IDLE = 0,
     RUNNING = 1,
     BUZZIN = 2,
     TIMEUP = 3,
     INPUT = 4,
-    HELP = 5
+    HELP = 5,
+    SETUP = 6
 
-# globals
+  # globals
 clock = MAXCLOCK
 fonts = {}
 colors = {}
@@ -228,10 +232,10 @@ def nameedit_modal():
 
     # inside modal
     pygame.draw.rect(screen, (60,60,60),
-                     (width, height, screenInfo.current_w - (width * 2), screenInfo.current_h) - (height*2))
-    # outside edge
+                     (width, height, screenInfo.current_w - (width * 2), screenInfo.current_h - (height*2)))
+                                                                                   # outside edge
     pygame.draw.rect(screen, (210,0,100),
-                     (width, height, screenInfo.current_w - (width * 2), screenInfo.current_h - (height*2), 2))
+                     (width, height, screenInfo.current_w - (width * 2), screenInfo.current_h - height*2))
 
     xpos = width + 60
     ypos = height + 30
