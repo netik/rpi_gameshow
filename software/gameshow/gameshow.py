@@ -33,15 +33,19 @@ os.chdir("/home/pi/src/gameshow")
 # can't hurt. 
 os.system("/usr/bin/amixer set PCM -- 1000")
 
+# force 1/8" output no matter what
+os.system("/usr/bin/amixer cset numid-3 1")
+
 class GameState:
     IDLE = 0,
     RUNNING = 1,
     BUZZIN = 2,
     TIMEUP = 3,
     INPUT = 4,
-    HELP = 5
+    HELP = 5,
+    SETUP = 6
 
-# globals
+  # globals
 clock = MAXCLOCK
 fonts = {}
 colors = {}
@@ -73,7 +77,7 @@ def setup_gpio():
     GPIO.setmode(GPIO.BCM)
     for k in player_map:
         GPIO.setup(k, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-        GPIO.add_event_detect(k, GPIO.RISING, button_event, bouncetime=50)
+        GPIO.add_event_detect(k, GPIO.FALLING, button_event, bouncetime=50)
 
     for k in led_map:
         GPIO.setup(k, GPIO.OUT)
@@ -228,10 +232,10 @@ def nameedit_modal():
 
     # inside modal
     pygame.draw.rect(screen, (60,60,60),
-                     (width, height, screenInfo.current_w - (width * 2), screenInfo.current_h) - (height*2))
-    # outside edge
+                     (width, height, screenInfo.current_w - (width * 2), screenInfo.current_h - (height*2)))
+                                                                                   # outside edge
     pygame.draw.rect(screen, (210,0,100),
-                     (width, height, screenInfo.current_w - (width * 2), screenInfo.current_h - (height*2), 2))
+                     (width, height, screenInfo.current_w - (width * 2), screenInfo.current_h - height*2))
 
     xpos = width + 60
     ypos = height + 30
