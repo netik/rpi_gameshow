@@ -3,11 +3,12 @@
 # Dirty Talk game show game show code, version 3, rPi and custom board
 #
 
+import os
+import time
 import pygame
 import pygame_textinput    # from https://github.com/Nearoo/pygame-text-input
 import ptext
 import pygame.freetype
-import os
 from pygame import Color
 import RPi.GPIO as GPIO
 
@@ -19,6 +20,7 @@ CLOCKEVENT=pygame.USEREVENT + 1
 SOUNDSET=2
 TITLE="The Dirty Talk Game Show"
 LOGO="images/logo.jpg"
+SPLASH="images/dirtytalk-fs.jpg"
 
 # GPIO Pinout
 player_map = [ 16, 17, 18, 19 ]
@@ -44,7 +46,8 @@ class GameState:
     INPUT = 4,
     HELP = 5,
     SETUP = 6
-
+    SPLASH = 10
+    
   # globals
 clock = MAXCLOCK
 fonts = {}
@@ -62,7 +65,7 @@ state = GameState.IDLE
 # I have no idea where these warnings are coming from on pin 20, let's disable them.
 # maybe it's complaining because pin 20 is MOSI/SPI but we're not using that and everything works fine.
 GPIO.setwarnings(False)
-
+                        
 def button_event(channel):
     # remember the event, we will handle this on the next clock tick
     global buzzedin
@@ -101,6 +104,7 @@ def initgame():
     pygame.mixer.pre_init(44100, -16, 2, 2048)
     pygame.mixer.init()
     pygame.init()
+
     screenInfo = pygame.display.Info()
     screen = pygame.display.set_mode((screenInfo.current_w, screenInfo.current_h), pygame.FULLSCREEN)
 
@@ -116,7 +120,8 @@ def initgame():
     # set player names
     for i in range(0,PLAYERS):
         player_names.append("Player %d" % (i+1))
-    
+
+        
 def initpalette():
     colors['white'] = pygame.Color(255,255,255)
     colors['grey'] = pygame.Color(164, 164, 164, 255)
@@ -216,6 +221,30 @@ def draw_title():
                fontname="fonts/RobotoCondensed-Bold.ttf", fontsize=80)
     pygame.display.flip()
 
+def draw_splash():
+    state = GameState.SPLASH
+    cleardisplay()
+
+    img = pygame.image.load(SPLASH)
+    screen.blit(img,(screenInfo.current_w/2 - img.get_width()/2,
+                     screenInfo.current_w/2 - img.get_width()/2))
+    pygame.display.flip()
+
+    # block for keypress
+    waiting = True
+    while waiting: 
+        e = pygame.event.wait()
+        if e.type == pygame.KEYDOWN:
+            waiting = False
+
+    pygame.display.flip()
+    
+    state = GameState.IDLE
+    cleardisplay()
+    draw_title()
+    draw_clock()
+    draw_scores()
+    
 def nameedit_modal():
     global state
     state = GameState.INPUT
@@ -330,9 +359,9 @@ def draw_help():
                 { "key": "T" , "text": "Play a \"time's up\" sound" },
                 { "key": "B" , "text": "Play a buzzer sound" },
                 { "key": "N" , "text": "Name Players" },
+                { "key": "S" , "text": "Draw Splash Screen" },
                 { "key": "SHIFT-A" , "text": "Reset game" },
-                { "key": "SHIFT-Z" , "text": "Reset Clock" },                
-            ]
+                { "key": "SHIFT-Z" , "text": "Reset Clock" },                    ]
 
     # draw a modal box at 85% of the screen. Stop the clock.
     state = GameState.HELP
@@ -493,6 +522,9 @@ while running:
 
             if event.key == pygame.K_n:
                 nameedit_modal()
+
+            if event.key == pygame.K_s and state == GameState.IDLE:
+                draw_splash()
                 
             if state != GameState.HELP: 
                 draw_scores()
@@ -506,9 +538,17 @@ while running:
                     pygame.mixer.music.load("sounds/Soundsets/%d/TIMESUP.mp3" % SOUNDSET)
                 else:
                     if (state == GameState.IDLE):
-                        state = GameState.RUNNING
+                        # make a beep
+                        pygame.mixer.music.load("sounds/Soundsets/%d/BEEP.mp3" % SOUNDSET)
+                        pygame.mixer.music.play()
+
+                        # let the sound finish
+                        while (pygame.mixer.music.get_busy() == True): 
+                          time.sleep(.25)
+
                         # preload audio
                         pygame.mixer.music.load("sounds/Soundsets/%d/TIMESUP.mp3" % SOUNDSET)
+                        state = GameState.RUNNING
                     else:
                         if (state == GameState.TIMEUP):
                             # you can either add time here, or if we
