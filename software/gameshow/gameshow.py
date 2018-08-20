@@ -77,7 +77,7 @@ def setup_gpio():
     GPIO.setmode(GPIO.BCM)
     for k in player_map:
         GPIO.setup(k, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-        GPIO.add_event_detect(k, GPIO.RISING, button_event, bouncetime=50)
+        GPIO.add_event_detect(k, GPIO.FALLING, button_event, bouncetime=50)
 
     for k in led_map:
         GPIO.setup(k, GPIO.OUT)
