@@ -569,6 +569,7 @@ while running:
             if clock > 0:
                 if state == GameState.RUNNING: 
                     clock = clock - CLOCK_STEP
+                    minutes = (clock / 60000)
                     sec = (clock - (minutes * 60000) ) / 1000
 
                     if prevsec != sec:
