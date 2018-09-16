@@ -435,6 +435,14 @@ def draw_clock():
                fontname="fonts/RobotoCondensed-Bold.ttf", fontsize=90)
     
     pygame.display.flip()
+
+def do_beep():
+  # make a beep
+  pygame.mixer.music.load("sounds/Soundsets/%d/BEEP.mp3" % SOUNDSET)
+  pygame.mixer.music.play()
+  # let the sound finish
+  while (pygame.mixer.music.get_busy() == True): 
+    time.sleep(.25)
     
 # init
 setup_gpio()
@@ -534,21 +542,15 @@ while running:
                 clear_leds()
                 buzzedin=-1
                 if (state == GameState.BUZZIN):
-                    state = GameState.RUNNING
-                    pygame.mixer.music.load("sounds/Soundsets/%d/TIMESUP.mp3" % SOUNDSET)
+                  do_beep()
+                  state = GameState.RUNNING
+                  pygame.mixer.music.load("sounds/Soundsets/%d/TIMESUP.mp3" % SOUNDSET)
                 else:
                     if (state == GameState.IDLE):
-                        # make a beep
-                        pygame.mixer.music.load("sounds/Soundsets/%d/BEEP.mp3" % SOUNDSET)
-                        pygame.mixer.music.play()
-
-                        # let the sound finish
-                        while (pygame.mixer.music.get_busy() == True): 
-                          time.sleep(.25)
-
-                        # preload audio
-                        pygame.mixer.music.load("sounds/Soundsets/%d/TIMESUP.mp3" % SOUNDSET)
-                        state = GameState.RUNNING
+                      do_beep()
+                      # preload audio for time up 
+                      pygame.mixer.music.load("sounds/Soundsets/%d/TIMESUP.mp3" % SOUNDSET)
+                      state = GameState.RUNNING
                     else:
                         if (state == GameState.TIMEUP):
                             # you can either add time here, or if we
