@@ -50,6 +50,7 @@ class GameState:
     
   # globals
 clock = MAXCLOCK
+prevsec = 0
 fonts = {}
 colors = {}
 screen = None
@@ -198,6 +199,7 @@ def reset_game():
         scores[i] = 0
         i = i + 1
     clock = MAXCLOCK
+    prevsec = 0
     state = GameState.IDLE
     buzzedin = -1
 
@@ -206,6 +208,7 @@ def reset_game():
 def reset_clock():
     global scores, clock, state, buzzedin
     clock = MAXCLOCK
+    prevsec = 0
     state = GameState.IDLE
     buzzedin = -1
 
@@ -566,6 +569,13 @@ while running:
             if clock > 0:
                 if state == GameState.RUNNING: 
                     clock = clock - CLOCK_STEP
+                    sec = (clock - (minutes * 60000) ) / 1000
+
+                    if prevsec != sec:
+                      prevsec = sec
+                      if prevsec <= 4:
+                        do_beep()
+
                     # handle timeout
                     if clock == 0:
                         # play sound
