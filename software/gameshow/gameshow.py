@@ -48,7 +48,7 @@ class GameState:
     SETUP = 6
     SPLASH = 10
     
-  # globals
+# globals
 clock = MAXCLOCK
 prevsec = 0
 fonts = {}
@@ -440,12 +440,17 @@ def draw_clock():
     pygame.display.flip()
 
 def do_beep():
+  global clock,state
+
   # make a beep
   pygame.mixer.music.load("sounds/Soundsets/%d/BEEP.mp3" % SOUNDSET)
   pygame.mixer.music.play()
-  # let the sound finish
+
+  # let the sound finish, and update the timer too... 
   while (pygame.mixer.music.get_busy() == True): 
-    time.sleep(.25)
+    time.sleep(CLOCK_STEP * .001)
+    if state == GameState.RUNNING:
+      clock = clock - CLOCK_STEP
     
 # init
 setup_gpio()
