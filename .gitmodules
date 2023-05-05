@@ -1,0 +1,3 @@
+[submodule "software/gameshow/pygame-text"]
+	path = software/gameshow/pygame-text
+	url = https://github.com/cosmologicon/pygame-text.git
