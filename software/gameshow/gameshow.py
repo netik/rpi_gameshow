@@ -786,12 +786,14 @@ def restore_state():
 
       player_names = saved_object["player_names"]
       scores = saved_object["scores"]
+      invert_display = saved_object["invert_display"]
 
 def store_state():
     global scores, clock, state, buzzedin
     saved_object = {
         "player_names": player_names,
         "scores": scores,
+        "invert_display": invert_display
     }
 
     filehandler = open(STATEFILE, "wb")
@@ -913,6 +915,7 @@ while running:
             # reset all
             if event.key == pygame.K_a and pygame.key.get_mods() & pygame.KMOD_SHIFT:
                 reset_game()
+                store_state()
 
             # reset round
             if event.key == pygame.K_z and pygame.key.get_mods() & pygame.KMOD_SHIFT:
