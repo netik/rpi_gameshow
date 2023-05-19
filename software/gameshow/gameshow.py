@@ -745,17 +745,10 @@ def draw_clock():
     draw_state()
 
 def do_beep():
-  global clock, state
-
   # make a beep
   pygame.mixer.music.load("sounds/Soundsets/%d/BEEP.mp3" % SOUNDSET)
   pygame.mixer.music.play()
 
-  # let the sound finish, and update the timer too...
-  while pygame.mixer.music.get_busy() == True:
-      time.sleep(CLOCK_STEP * 0.001)
-      if state == GameState.RUNNING:
-          clock = clock - CLOCK_STEP
 
 def draw_gamestate():
   if state == GameState.BUZZIN:
