@@ -11,7 +11,6 @@
 PLATFORM = "pc"  # or "pc"
 
 import os
-import time
 import pygame
 import pygame_textinput  # from https://github.com/Nearoo/pygame-text-input
 import ptext
@@ -23,8 +22,9 @@ if PLATFORM == "rpi":
 
 # config
 PLAYERS = 4
+FPS=30
 MAXCLOCK = 60000  # in microseconds!
-CLOCK_STEP = 250  # mS
+CLOCK_STEP = 1000  # mS
 CLOCKEVENT = pygame.USEREVENT + 1
 SOUNDSET = 2
 TITLE = "The Dirty Talk Game Show"
@@ -222,7 +222,7 @@ def buzz_in_alert():
 def draw_scores():
     i = 1
     
-    while i < 5:
+    while i < PLAYERS + 1:
       bgcolor = colors["black"] # black
 
       if buzzedin == (i-1):
@@ -261,13 +261,14 @@ def draw_scores():
         )
 
         # divider
-        pygame.draw.line(
-            screen,
-            colors["grey"],
-            ((screenInfo.current_w / 4 * i - 2), 0),
-            ((screenInfo.current_w / 4 * i - 2), 240),
-            width = 2
-        )
+        if i < PLAYERS:
+            pygame.draw.line(
+                screen,
+                colors["grey"],
+                ((screenInfo.current_w / 4 * i - 2), 0),
+                ((screenInfo.current_w / 4 * i - 2), 240),
+                width = 2
+            )
 
       else:  
         pygame.draw.rect(
@@ -598,8 +599,7 @@ def nameedit_modal():
             screen.blit(textinput.surface, (xpos, height + inputs_offset + (editing * input_spacing)))
 
         pygame.display.update()
-        clock.tick(60)
-
+        clock.tick(FPS)
 
 def draw_help():
     global state
@@ -999,4 +999,4 @@ while running:
     # no rendering should happen before this line.
     render_all()
     pygame.display.flip()
-    pygame.time.Clock().tick(20)
+    pygame.time.Clock().tick(FPS)

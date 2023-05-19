@@ -22,9 +22,6 @@ source .venv/bin/activate
 pip3 install --upgrade pip 
 pip3 install wheel
 
-# get all submodules (not used right now)
-git submodule update --recursive
-
 # installs all dependencies
 pip3 install -r requirements.txt
 ```
