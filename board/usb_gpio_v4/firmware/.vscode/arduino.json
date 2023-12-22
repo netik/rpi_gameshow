@@ -1,0 +1,6 @@
+{
+    "sketch": "gpio_to_serial/gpio_to_serial.ino",
+    "configuration": "cpu=atmega328",
+    "board": "arduino:avr:nano",
+    "port": "/dev/tty.usbserial-84440"
+}

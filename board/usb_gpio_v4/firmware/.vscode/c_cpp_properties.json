@@ -1,0 +1,38 @@
+{
+    "configurations": [
+        {
+            "name": "Mac",
+            "includePath": [
+                "${workspaceFolder}/**"
+            ],
+            "defines": [],
+            "macFrameworkPath": [
+                "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks"
+            ],
+            "compilerPath": "/usr/bin/clang",
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "macos-clang-arm64",
+            // add arduino config
+
+        },
+        {
+            "name": "Arduino",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/Users/jna/Library/Arduino15/packages/arduino/hardware/arduino/avr/cores/arduino",
+                "/Users/jna/Library/Arduino15/packages/arduino/hardware/arduino/avr/libraries/EEPROM/src",
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE",
+                "F_CPU=16000000L",
+                "ARDUINO=10805",
+                "ARDUINO_AVR_UNO",
+                "ARDUINO_ARCH_AVR"
+            ],
+        }
+    ],
+    "version": 4
+}
