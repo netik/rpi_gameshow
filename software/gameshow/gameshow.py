@@ -1,14 +1,7 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 #
 # Dirty Talk game show game show code, version 3, rPi and custom board
 #
-
-# OFFLINE MODE if this is set to anything other than "rpi", we will never
-# attempt to access the rPi GPIO pins and we will display a fake LED state on
-# the screen
-# 
-# numkey 1-4 on the keypad can be used to simulate buzzers
-PLATFORM = "pc"  # or "pc"
 
 import os
 import pygame
@@ -16,9 +9,23 @@ import pygame_textinput  # from https://github.com/Nearoo/pygame-text-input
 import ptext
 import math
 import pickle
+import time
+
+# OFFLINE MODE if this is set to anything other than "rpi", we will never
+# attempt to access the rPi GPIO pins and we will display a fake LED state on
+# the screen
+ 
+# numkey 1-4 on the keypad can be used to simulate buzzers
+#PLATFORM = "rpi"  # Running the entire game on a raspberry pi using the onboard GPIO 
+#PLATFORM = "pc"  # Running the game in dev mode on a computer, no GPIO
+PLATFORM = "pcserial"  # Running on a computer with a serial connection to GPIO board (rev4)
+SERIAL_DEVICE = "/dev/cu.usbserial-84440"
 
 if PLATFORM == "rpi":
   import RPi.GPIO as GPIO
+
+if PLATFORM == "pcserial": 
+  import serial
 
 # config
 PLAYERS = 4
@@ -38,6 +45,10 @@ reverse_map = {16: 0, 17: 1, 18: 2, 19: 3}
 led_map = [20, 21, 22, 23]
 led_state = [False, False, False, False]
 player_names = []
+sound_library = {}
+
+# Serial port, if using one
+SER = None
 
 # set working dir
 if PLATFORM == "rpi":
@@ -48,6 +59,19 @@ if PLATFORM == "rpi":
 
   # force 1/8" output no matter what
   os.system("/usr/bin/amixer cset numid-3 1")
+
+
+# send a command to the serial port and wait for response
+def sendSerial(cmd):
+  global SER
+
+  if PLATFORM == "pcserial":
+    SER.write(cmd)
+    SER.flush()
+    print("sent: %s" % cmd)
+    resp = SER.readline()
+    print("recv: %s" % resp)
+    return "OK"
 
 #--------------------------------------
 # ENUMS to represent the game state
@@ -80,11 +104,18 @@ state = GameState.IDLE
 def button_event(channel):
     # remember the event, we will handle this on the next clock tick
     global buzzedin
+
+    # if it's serial we can use it directly.
+    if SER:
+       buzzedin = channel-1
+       return
+    
+    # if GPIO we have to map it back to the right player
     buzzedin = reverse_map[channel]
 
 # display the LED state on the main screen for debugging
 def draw_leds():
-  if PLATFORM == "rpi":
+  if PLATFORM != "pc":
     return
   
   xpos = 20
@@ -118,6 +149,10 @@ def set_all_leds(state=False):
     for k in range(0,PLAYERS):
       if PLATFORM == "rpi":
         GPIO.output(led_map[k], state)
+
+      if PLATFORM == "pcserial":
+        sendSerial(b"LED %d %d\n" % ((k+1), state))
+
       led_state[k] = state
     
 # Some hardware abstractions here so we can debug w/o the hardware
@@ -131,7 +166,31 @@ def set_led(led, state, exclusive = False):
     if PLATFORM == "rpi":
       GPIO.output(led_map[led], state)
 
+    if PLATFORM == "pcserial":
+       sendSerial(b"LED %d %d\n" % ((led+1), state))
+
     led_state[led] = state
+
+def setup_serial(device):
+  if PLATFORM != "pcserial":
+    return
+
+  SER = serial.Serial(device, 115200, bytesize=8, parity=serial.PARITY_NONE, stopbits=1)  # open serial port
+  while not SER.isOpen():
+    pass
+  
+  print("Serial port open")
+  # sleep for board to reset as it resets on open
+  print("Waiting for board to reset...")
+
+  while True:
+    line = SER.readline()
+    print("recv: %s" % line)
+    if line == b"RESET OK\r\n":
+      break
+
+  print("Board reset")
+  return SER
 
 def setup_gpio():
     if PLATFORM != "rpi":
@@ -213,8 +272,7 @@ def buzz_in_alert():
     state = GameState.BUZZIN
 
     # play sound
-    pygame.mixer.music.load("sounds/Soundsets/%d/BUZZ.mp3" % SOUNDSET)
-    pygame.mixer.music.play()
+    sound_library['BUZZ'].play()
 
     # light only that player
     set_led(buzzedin, True, True)
@@ -508,11 +566,15 @@ def nameedit_modal():
         events = pygame.event.get()
         # pass all of the events to textinput for input handling
         textinput.update(events)
-        
+
         # See if we care about any of the events that just fired
         for event in events:
             if event.type == pygame.QUIT:
-                exit()
+                print("Quitting..")
+                if SER:
+                  print("Closing serial port")
+                  SER.close()
+                pygame.quit()
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 state = GameState.IDLE
@@ -746,8 +808,8 @@ def draw_clock():
 
 def do_beep():
   # make a beep
-  pygame.mixer.music.load("sounds/Soundsets/%d/BEEP.mp3" % SOUNDSET)
-  pygame.mixer.music.play()
+  sound_library['BEEP'].play()
+
 
 
 def draw_gamestate():
@@ -793,8 +855,6 @@ def store_state():
     pickle.dump(saved_object, filehandler)
     filehandler.close()
 
-
-
 def render_all():
   '''Render the entire screen'''
   cleardisplay()
@@ -808,19 +868,55 @@ def render_all():
   
   pygame.display.flip()
 
+def load_sounds():
+  """Load all sounds from subdirectories in a dictionary"""
+  global sound_library
+  print("Loading sounds...")
+  sound_path = "sounds/Soundsets/%d" % SOUNDSET
+  for dirpath, dirnames, filenames in os.walk(sound_path):
+    print ("Found directory: %s" % dirpath)
+    print ("Files: %s" % filenames)
+
+    for name in filenames:
+      if name.endswith('.mp3'):
+          key = name[:-4]
+          sound_library[key] = pygame.mixer.Sound(os.path.join(sound_path,name))
+          print ("Loaded sound %s" % key)
+
+for sound in sound_library:
+    print(sound)
+
 # init
 setup_gpio()
+SER = setup_serial(SERIAL_DEVICE)
 restore_state()
 initgame()
 initpalette()
+load_sounds()
 render_all()
 
-# main event loop
+# ------------------ main event loop ------------------
 i = 0
 running = 1
 pygame.time.set_timer(CLOCKEVENT, CLOCK_STEP)
 
+# flush the serial buffers at the start of the game
+if SER:
+    SER.reset_input_buffer()
+    SER.reset_output_buffer()
+
+print("\nStarting main loop...\n")
+
 while running:
+    # do we have serial data?
+    if SER:
+        if SER.inWaiting() > 0:
+            received_data = SER.read(SER.inWaiting())
+            print("recv: %s" % received_data)
+            parts = received_data.split()
+            if parts[0] == b"SWITCH" and parts[2] == b"PRESSED":
+                button_event(int(parts[1]))
+
     # we do not poll here because it will induce very high cpu.
     for event in pygame.event.get():
         if event.type == pygame.QUIT or (
@@ -889,13 +985,11 @@ while running:
                   
             # sounds
             if event.key == pygame.K_b:
-                pygame.mixer.music.load("sounds/misc/buzzer.mp3")
-                pygame.mixer.music.play()
+                sound_library['BUZZ'].play()
 
             if event.key == pygame.K_t:
-                pygame.mixer.music.load("sounds/misc/timesup.mp3")
-                pygame.mixer.music.play()
-
+                sound_library['TIMESUP'].play()
+                
             # clock changes
             if event.key == pygame.K_p:
                 clock = clock + 5000
