@@ -19,7 +19,8 @@ import time
 #PLATFORM = "rpi"  # Running the entire game on a raspberry pi using the onboard GPIO 
 #PLATFORM = "pc"  # Running the game in dev mode on a computer, no GPIO
 PLATFORM = "pcserial"  # Running on a computer with a serial connection to GPIO board (rev4)
-SERIAL_DEVICE = "/dev/cu.usbserial-84440"
+#SERIAL_DEVICE = "/dev/cu.usbserial-84440"
+SERIAL_DEVICE = "/dev/cu.usbserial-21320"
 
 if PLATFORM == "rpi":
   import RPi.GPIO as GPIO
@@ -231,12 +232,12 @@ def initgame():
     pygame.mixer.init()
     pygame.init()
 
+    # set display ID here via display = 1 if needed.
+    screen = pygame.display.set_mode(
+        (0,0), pygame.FULLSCREEN, display=1
+    )
     screenInfo = pygame.display.Info()
     print(screenInfo)
-
-    screen = pygame.display.set_mode(
-        (screenInfo.current_w, screenInfo.current_h), pygame.FULLSCREEN
-    )
 
     # hide mouse
     pygame.mouse.set_visible(False)
@@ -772,10 +773,7 @@ def draw_state():
   if state == GameState.RUNNING:
       statestr = ""
 
-  if invert_display:
-    message_y = 320
-  else:
-    message_y = screenInfo.current_h / 3 + 250
+  message_y = screenInfo.current_h / 3 + 260
 
   ptext.draw(
       statestr,
@@ -833,7 +831,7 @@ def draw_gamestate():
     )
 
 def restore_state():
-    global scores, clock, state, buzzedin
+    global scores, clock, state, buzzedin,player_names,invert_display
     if os.path.exists(STATEFILE):
       filehandler = open(STATEFILE, "rb")
       saved_object = pickle.load(filehandler)
@@ -844,7 +842,7 @@ def restore_state():
       invert_display = saved_object["invert_display"]
 
 def store_state():
-    global scores, clock, state, buzzedin
+    global scores, clock, state, buzzedin, player_names, invert_display
     saved_object = {
         "player_names": player_names,
         "scores": scores,
@@ -914,8 +912,10 @@ while running:
             received_data = SER.read(SER.inWaiting())
             print("recv: %s" % received_data)
             parts = received_data.split()
-            if parts[0] == b"SWITCH" and parts[2] == b"PRESSED":
+            if parts[0] == b"SWITCH" and parts[2] == b"PRESSED" and state == GameState.RUNNING:
                 button_event(int(parts[1]))
+                ser_event = pygame.event.Event(int(parts[1]))
+                pygame.event.post(ser_event)
 
     # we do not poll here because it will induce very high cpu.
     for event in pygame.event.get():
@@ -1027,16 +1027,9 @@ while running:
                 if state == GameState.BUZZIN:
                     do_beep()
                     state = GameState.RUNNING
-                    pygame.mixer.music.load(
-                        "sounds/Soundsets/%d/TIMESUP.mp3" % SOUNDSET
-                    )
                 else:
                     if state == GameState.IDLE:
                         do_beep()
-                        # preload audio for time up
-                        pygame.mixer.music.load(
-                            "sounds/Soundsets/%d/TIMESUP.mp3" % SOUNDSET
-                        )
                         state = GameState.RUNNING
                     else:
                         if state == GameState.TIMEUP:
@@ -1066,10 +1059,7 @@ while running:
                       for i in range(0, PLAYERS):
                           set_all_leds(True)
 
-                      pygame.mixer.music.load(
-                          "sounds/Soundsets/%d/TIMESUP.mp3" % SOUNDSET
-                      )
-                      pygame.mixer.music.play()
+                      sound_library['TIMESUP'].play()
                       state = GameState.TIMEUP
 
             if state == GameState.IDLE:
