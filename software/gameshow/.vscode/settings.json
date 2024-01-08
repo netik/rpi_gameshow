@@ -1,0 +1,18 @@
+{
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter"
+    },
+    "python.formatting.provider": "none",
+    "cSpell.words": [
+        "bouncetime",
+        "bytesize",
+        "CLOCKEVENT",
+        "GPIO",
+        "pcserial",
+        "pygame",
+        "pyserial",
+        "stopbits",
+        "xpos",
+        "ypos"
+    ]
+}
