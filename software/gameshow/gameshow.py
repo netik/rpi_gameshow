@@ -14,6 +14,7 @@ import config
 from GameState import GameState
 from Context import Context
 from NameEditor import NameEditor
+from drawutil import drawtext
 
 if config.PLATFORM == "rpi":
     from RPi.GPIO import GPIO
@@ -208,23 +209,6 @@ def loadfont(context, shortname, filename, size):
         size (number): size of font to load
     """
     context.fonts[shortname] = pygame.font.Font(os.path.join("fonts", filename), size)
-
-
-def drawtext(context, font_name, text, xpos, ypos, fg_color, bg_color):
-    """blit a string of text to the screen at a specific location and with a specific font
-
-    Args:
-        context (GameContext): Game Context
-        font_name (str): name of font to use
-        text (str): text to display
-        xpos (number): xpos coordinate
-        ypos (number): ypos coordinate
-        fg_color (color): foreground color
-        bg_color (color): background color
-    """
-    text_surface = context.fonts[font_name].render(text, True, fg_color, bg_color)
-
-    context.screen.blit(text_surface, (xpos, ypos))
 
 
 def clear_display(context):
@@ -706,8 +690,9 @@ def handle_clock_event(context):
 def handle_keyboard_event(context, event):
     # handle quit event (shift-escape)
     if event.key == pygame.K_ESCAPE and pygame.key.get_mods() & pygame.KMOD_SHIFT:
-        return 0
-
+        pygame.quit()
+        return
+    
     # MC Controls
     #
     # 1,2,3,4 = Adds a point to that player 1,2,3,4

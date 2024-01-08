@@ -4,8 +4,12 @@ import pygame_textinput  # from https://github.com/Nearoo/pygame-text-input
 
 import config
 from GameState import GameState
+from drawutil import drawtext
 
 class NameEditor:
+    """
+    NameEditor is a modal that allows the user to edit the player names.
+    """
     input_height = 80
     input_spacing = 200  # spacing between inputs
     inputs_offset = 150  # offset from top of modal where inputs begin
@@ -71,9 +75,9 @@ class NameEditor:
                 (60, 60, 60),
                 (
                     xpos - 4,
-                    self.height + inputs_offset + (i * input_spacing),
+                    self.height + self.inputs_offset + (i * self.input_spacing),
                     self.context.screenInfo.current_w - (self.width * 2) - 120,
-                    input_self.height,
+                    self.input_height,
                 ),
             )
 
@@ -83,7 +87,7 @@ class NameEditor:
                 "robo36",
                 f"Player {(i+1)}",
                 xpos,
-                self.height + label_offset + (i * input_spacing),
+                self.height + self.label_offset + (i * self.input_spacing),
                 (255, 255, 255),
                 (210, 0, 100),
             )
@@ -94,7 +98,7 @@ class NameEditor:
                 "robo50",
                 self.context.player_names[i],
                 xpos,
-                self.height + inputs_offset + (i * input_spacing),
+                self.height + self.inputs_offset + (i * self.input_spacing),
                 (255, 255, 0),
                 (60, 60, 60),
             )
@@ -132,7 +136,6 @@ class NameEditor:
                     self.context.state = GameState.IDLE
                     self.context.player_names[editing] = textinput.value
                     self.context.save()
-                    render_all(self.context)
                     return
 
                 # Feed it with events every frame
@@ -150,9 +153,9 @@ class NameEditor:
                         (60, 60, 60),
                         (
                             xpos - 4,
-                            self.height + inputs_offset + (editing * input_spacing),
+                            self.height + self.inputs_offset + (editing * self.input_spacing),
                             self.context.screenInfo.current_w - (self.width * 2) - 120,
-                            input_self.height,
+                            self.input_height,
                         ),
                     )
 
@@ -161,7 +164,7 @@ class NameEditor:
                         "robo50",
                         self.context.player_names[editing],
                         xpos,
-                        self.height + inputs_offset + (editing * input_spacing),
+                        self.height + self.inputs_offset + (editing * self.input_spacing),
                         (255, 255, 0),
                         (60, 60, 60),
                     )
@@ -203,9 +206,9 @@ class NameEditor:
                     (30, 30, 30),
                     (
                         xpos - 4,
-                        self.height + inputs_offset + (editing * input_spacing),
+                        self.height + self.inputs_offset + (editing * self.input_spacing),
                         self.context.screenInfo.current_w - (self.width * 2) - 120,
-                        input_self.height,
+                        self.input_height,
                     ),
                 )
 
@@ -213,7 +216,7 @@ class NameEditor:
                 # thre is a slight problem here that the text drawing is off?
                 self.context.screen.blit(
                     textinput.surface,
-                    (xpos, self.height + inputs_offset + (editing * input_spacing)),
+                    (xpos, self.height + self.inputs_offset + (editing * self.input_spacing)),
                 )
 
             pygame.display.update()
