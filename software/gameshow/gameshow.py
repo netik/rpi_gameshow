@@ -606,10 +606,36 @@ def draw_gamestate(context):
             fontsize=90,
         )
 
+def draw_radial_gradient(context, color1, color2):
+    center = [context.screenInfo.current_w/2, context.screenInfo.current_h+100]
+    w = context.screenInfo.current_w
+    h = context.screenInfo.current_h
+    radius = math.sqrt((w/2)**2 + (h/2)**2)  # maximum distance to the window boundary
+
+    i = 0 
+    while i < max(w, h):
+        r = i / max(w, h)
+        color = (
+            color1[0] * (1 - r) + color2[0] * r,
+            color1[1] * (1 - r) + color2[1] * r,
+            color1[2] * (1 - r) + color2[2] * r
+        )
+
+        angle = 2 * math.pi * i / max(w, h) + pygame.time.get_ticks() / 100 / 360
+        end_pos = (center[0] + radius * math.cos(angle), center[1] + radius * math.sin(angle))
+        pygame.draw.line(context.screen, color, center, end_pos)
+        i = i + 30
+
+
+def render_background(context):
+    color1 = context.colors["pink"]
+    color2 = context.colors["grey"]    
+    draw_radial_gradient(context, color1, color2)
 
 def render_all(context):
     """Render the entire screen"""
     clear_display(context)
+    render_background(context)
     draw_title(context)
     draw_clock(context)
     draw_scores(context)
@@ -738,6 +764,19 @@ def handle_keyboard_event(context, event):
             button_event(context, config.PLAYER_MAP[2])
 
         if event.key == pygame.K_KP4:
+            button_event(context, config.PLAYER_MAP[3])
+            
+    if config.PLATFORM == "pc" and context.state == GameState.RUNNING:
+        if event.key == pygame.K_z:
+            button_event(context, config.PLAYER_MAP[0])
+
+        if event.key == pygame.K_x:
+            button_event(context, config.PLAYER_MAP[1])
+
+        if event.key == pygame.K_c:
+            button_event(context, config.PLAYER_MAP[2])
+
+        if event.key == pygame.K_v:
             button_event(context, config.PLAYER_MAP[3])
 
     # sounds

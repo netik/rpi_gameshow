@@ -8,7 +8,7 @@ import pygame
 PLAYERS = 4
 
 # Frames per second redraw rate
-FPS = 30
+FPS = 60
 
 # starting clock, in milliseconds
 MAX_CLOCK = 60000  # in microseconds!
