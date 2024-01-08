@@ -12,13 +12,17 @@ import pygame
 from Sound import Sound
 from GameState import GameState
 
+
 class Context:
     """
     Context is a container for all the game's global variables.
     """
 
     def __init__(self):
-        # I/O
+        """
+        Init
+        """
+        # I/O pyserial device
         self.serial_port = None
 
         # globals
@@ -42,10 +46,10 @@ class Context:
 
         # screen
         self.screen = None
-        
+
         # sound effects
         self.sound = Sound()
-        
+
         # init pallette
         self.init_palette()
 
@@ -62,10 +66,9 @@ class Context:
         self.colors["lightgrey"] = pygame.Color(200, 200, 200, 255)
         self.colors["pink"] = pygame.Color(255, 0, 255, 255)
 
-
     def reset_game(self):
         """
-        resets game context to initial state
+        Resets game context to initial state
         """
         self.scores = [0 for i in range(config.PLAYERS)]
 
@@ -76,31 +79,47 @@ class Context:
 
     def reset_clock(self):
         """
-        resets game clock
+        Resets game clock
         """
         self.clock = config.MAX_CLOCK
         self.prev_sec = 0
         self.state = GameState.IDLE
         self.player_buzzed_in = -1
-        
+
     def restore(self):
         """
-        restores game context from file
+        Restores game context from file
         """
-        if os.path.exists(config.STATEFILE):
-            with open(config.STATEFILE, "rb") as file:
+        if os.path.exists(config.STATE_FILE_NAME):
+            with open(config.STATE_FILE_NAME, "rb") as file:
                 saved_object = pickle.load(file)
-    
+
             self.player_names = saved_object["player_names"]
             self.scores = saved_object["scores"]
             self.invert_display = saved_object["invert_display"]
 
     def save(self):
+        """
+        Saves game context to file
+        """
         saved_object = {
             "player_names": self.player_names,
             "scores": self.scores,
             "invert_display": self.invert_display,
         }
 
-        with open(config.STATEFILE, "wb") as file:
+        with open(config.STATE_FILE_NAME, "wb") as file:
             pickle.dump(saved_object, file)
+
+
+    def load_font(self, shortname, filename, size):
+        """loads fonts into the context
+
+        Args:
+            context (GameContext): Game Context
+            shortname (str): name to reference the font by
+            filename (str): font filename
+            size (number): size of font to load
+        """
+        self.fonts[shortname] = pygame.font.Font(os.path.join("fonts", filename), size)
+

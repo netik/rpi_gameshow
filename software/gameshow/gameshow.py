@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 """
-Dirty Talk Game Show
+The Dirty Talk Game Show
+A four player game show buzzer system with a large clock and score display.
+
+
+J. Adams <jna@retina.net>
+2023
 """
 
 import os
@@ -198,19 +203,6 @@ def setup_gpio(context):
 
     set_all_leds(context)
 
-
-def loadfont(context, shortname, filename, size):
-    """loads fonts into the context
-
-    Args:
-        context (GameContext): Game Context
-        shortname (str): name to reference the font by
-        filename (str): font filename
-        size (number): size of font to load
-    """
-    context.fonts[shortname] = pygame.font.Font(os.path.join("fonts", filename), size)
-
-
 def clear_display(context):
     """
     clear screen
@@ -238,11 +230,11 @@ def init_game(context):
     clear_display(context)
 
     # load fonts
-    loadfont(context, "bebas40", "BebasKai-Regular.otf", 40)
-    loadfont(context, "robo36", "RobotoCondensed-Bold.ttf", 36)
-    loadfont(context, "robo50", "RobotoCondensed-Bold.ttf", 50)
-    loadfont(context, "robo90", "RobotoCondensed-Bold.ttf", 90)
-    loadfont(context, "robo250", "RobotoCondensed-Bold.ttf", 250)
+    context.load_font("bebas40", "BebasKai-Regular.otf", 40)
+    context.load_font("robo36", "RobotoCondensed-Bold.ttf", 36)
+    context.load_font("robo50", "RobotoCondensed-Bold.ttf", 50)
+    context.load_font("robo90", "RobotoCondensed-Bold.ttf", 90)
+    context.load_font("robo250", "RobotoCondensed-Bold.ttf", 250)
 
 
 def handle_buzz_in(context):

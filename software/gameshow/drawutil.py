@@ -1,6 +1,10 @@
-
+# pylint: disable=too-many-arguments
+"""
+various drawing utility functions
+"""
 def drawtext(context, font_name, text, xpos, ypos, fg_color, bg_color):
-    """blit a string of text to the screen at a specific location and with a specific font
+    """
+    blit a string of text to the screen at a specific location and with a specific font
 
     Args:
         context (GameContext): Game Context

@@ -10,6 +10,7 @@
         "GPIO",
         "pcserial",
         "pygame",
+        "pyserial",
         "stopbits",
         "xpos",
         "ypos"

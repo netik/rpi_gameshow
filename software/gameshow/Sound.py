@@ -25,7 +25,7 @@ class Sound:
     def load_sounds(self):
         """Load all sounds from subdirectories in a dictionary"""
         print("Loading sounds...")
-        sound_path = f"sounds/Soundsets/{config.SOUNDSET}"
+        sound_path = f"sounds/Soundsets/{config.SOUND_SET}"
         for dirpath, _, filenames in os.walk(sound_path):
             print("Found directory: %s" % dirpath)
             print("Files: %s" % filenames)
