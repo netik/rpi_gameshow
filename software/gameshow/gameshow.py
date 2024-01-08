@@ -1,19 +1,19 @@
 #!/usr/bin/env python
-#
-# Dirty Talk game show game show code, version 3, rPi and custom board
-#
+"""
+Dirty Talk Game Show
+"""
 
 import os
 import math
 import serial
 
 import pygame
-import pygame_textinput  # from https://github.com/Nearoo/pygame-text-input
 import ptext
 import config
 
 from GameState import GameState
 from Context import Context
+from NameEditor import NameEditor
 
 if config.PLATFORM == "rpi":
     from RPi.GPIO import GPIO
@@ -27,6 +27,7 @@ if config.PLATFORM == "rpi":
 
     # force 1/8" output no matter what
     os.system("/usr/bin/amixer cset numid-3 1")
+
 
 def serial_send(context, cmd):
     """
@@ -42,12 +43,13 @@ def serial_send(context, cmd):
     if config.PLATFORM == "pcserial":
         context.serial_port.write(cmd)
         context.serial_port.flush()
-        print("sent: %s" % cmd)
+        print("sent: " + cmd)
         resp = context.serial_port.readline()
-        print("recv: %s" % resp)
+        print("recv: " + resp)
         return True
 
     return False
+
 
 def button_event(context, channel):
     """
@@ -62,19 +64,24 @@ def button_event(context, channel):
     # if GPIO we have to map it back to the right player
     context.player_buzzed_in = config.PLAYER_REVERSE_MAP[channel]
 
+
 # display the LED state on the main screen for debugging
 def draw_leds(context):
-    '''
+    """
     draws all LEDs on the screen for debugging
-    '''
+    """
     if config.PLATFORM != "pc":
         return
 
     xpos = 20
     ypos = 250
-    drawtext(context,"robo36", "(debug) LEDs:", xpos, ypos - 50, (255, 255, 255), (0, 0, 0))
+    drawtext(
+        context, "robo36", "(debug) LEDs:", xpos, ypos - 50, (255, 255, 255), (0, 0, 0)
+    )
 
-    pygame.draw.rect(context.screen,(255, 255, 255), (xpos, ypos, config.PLAYERS * 85, 80), 2)
+    pygame.draw.rect(
+        context.screen, (255, 255, 255), (xpos, ypos, config.PLAYERS * 85, 80), 2
+    )
 
     for k in range(0, config.PLAYERS):
         if context.led_state[k]:
@@ -82,8 +89,11 @@ def draw_leds(context):
         else:
             color = (20, 20, 20)
 
-        pygame.draw.circle(context.screen, color, (xpos + 50, ypos + 40), 30, 0)  # filled
+        pygame.draw.circle(
+            context.screen, color, (xpos + 50, ypos + 40), 30, 0
+        )  # filled
         xpos = xpos + 80
+
 
 # Some hardware abstractions here so we can debug w/o the hardware
 # LED abstraction
@@ -109,6 +119,7 @@ def set_led(context, led, new_state, exclusive=False):
 
     context.led_state[led] = new_state
 
+
 def set_all_leds(context, new_state=False):
     """Set all LEDs to the same state
 
@@ -118,6 +129,7 @@ def set_all_leds(context, new_state=False):
     """
     for k in range(0, config.PLAYERS):
         set_led(context, k, new_state, False)
+
 
 def setup_serial(context, device):
     """
@@ -146,11 +158,17 @@ def setup_serial(context, device):
 
     while True:
         line = context.serial_port.readline()
-        print("recv: %s" % line)
+        print("recv: " + line)
         if line == b"RESET OK\r\n":
             break
 
     print("Board reset")
+
+    # flush the serial buffers at the start of the game
+    if context.serial_port:
+        context.serial_port.reset_input_buffer()
+        context.serial_port.reset_output_buffer()
+
     return context.serial_port
 
 
@@ -179,6 +197,7 @@ def setup_gpio(context):
 
     set_all_leds(context)
 
+
 def loadfont(context, shortname, filename, size):
     """loads fonts into the context
 
@@ -205,17 +224,27 @@ def drawtext(context, font_name, text, xpos, ypos, fg_color, bg_color):
     """
     text_surface = context.fonts[font_name].render(text, True, fg_color, bg_color)
 
-    context.screen.blit(text_surface, (xpos,ypos))
+    context.screen.blit(text_surface, (xpos, ypos))
+
 
 def clear_display(context):
+    """
+    clear screen
+
+    Args:
+        context (Context): current game context
+    """
     context.screen.fill((0, 0, 0))
+
 
 def init_game(context):
     """
     initializes the game and screen
     """
     # set display ID here via display = 1 if needed.
-    context.screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN, display=config.DISPLAY_ID)
+    context.screen = pygame.display.set_mode(
+        (0, 0), pygame.FULLSCREEN, display=config.DISPLAY_ID
+    )
     context.screenInfo = pygame.display.Info()
     print(context.screenInfo)
 
@@ -231,13 +260,12 @@ def init_game(context):
     loadfont(context, "robo90", "RobotoCondensed-Bold.ttf", 90)
     loadfont(context, "robo250", "RobotoCondensed-Bold.ttf", 250)
 
-def handle_buzz_in(context):
-    global state
 
+def handle_buzz_in(context):
     # stop the clock by changing state.
     context.state = GameState.BUZZIN
 
-    # play 
+    # play a sound
     context.sound.play("BUZZ")
 
     # light only that player
@@ -277,7 +305,7 @@ def draw_scores(context):
 
             # score
             ptext.draw(
-                "%d" % context.scores[i - 1],
+                f"{context.scores[i - 1]:d}",
                 centerx=(context.screenInfo.current_w / 8 * ((i * 2) - 1)),
                 centery=170,
                 color=context.colors["white"],
@@ -308,7 +336,7 @@ def draw_scores(context):
             )
 
             ptext.draw(
-                player_names[i - 1],
+                context.player_names[i - 1],
                 centerx=(context.screenInfo.current_w / 8 * ((i * 2) - 1)),
                 centery=context.screenInfo.current_h / 2 + 200,
                 color=context.colors["lightgrey"],
@@ -317,7 +345,7 @@ def draw_scores(context):
             )
 
             ptext.draw(
-                "%d" % context.scores[i - 1],
+                f"{context.scores[i - 1]:d}",
                 centerx=(context.screenInfo.current_w / 8 * ((i * 2) - 1)),
                 centery=(context.screenInfo.current_h / 2) + 350,
                 color=context.colors["white"],
@@ -327,8 +355,14 @@ def draw_scores(context):
             pygame.draw.line(
                 context.screen,
                 context.colors["grey"],
-                ((context.screenInfo.current_w / 4 * i - 2), context.screenInfo.current_h / 2 + 150),
-                ((context.screenInfo.current_w / 4 * i - 2), context.screenInfo.current_h),
+                (
+                    (context.screenInfo.current_w / 4 * i - 2),
+                    context.screenInfo.current_h / 2 + 150,
+                ),
+                (
+                    (context.screenInfo.current_w / 4 * i - 2),
+                    context.screenInfo.current_h,
+                ),
                 width=2,
             )
 
@@ -338,37 +372,60 @@ def draw_scores(context):
         # draw separator under scores
         pygame.draw.line(
             context.screen,
-            context.colors["grey"], (0, 240), (context.screenInfo.current_w, 240), width=2
+            context.colors["grey"],
+            (0, 240),
+            (context.screenInfo.current_w, 240),
+            width=2,
         )
 
 
 def draw_title(context):
+    """
+    Draw the game title
+
+    Args:
+        context (Context): current game context
+    """
     img = pygame.image.load(config.LOGO)
-    PADDING = 60
+    line_padding = 60
 
     if context.invert_display:
         # logo left and right
-        context.screen.blit(img, (PADDING, context.screenInfo.current_h - img.get_height() - PADDING))
         context.screen.blit(
             img,
             (
-                context.screenInfo.current_w - img.get_width() - PADDING,
-                context.screenInfo.current_h - img.get_height() - PADDING,
+                line_padding,
+                context.screenInfo.current_h - img.get_height() - line_padding,
+            ),
+        )
+        context.screen.blit(
+            img,
+            (
+                context.screenInfo.current_w - img.get_width() - line_padding,
+                context.screenInfo.current_h - img.get_height() - line_padding,
             ),
         )
         # title
         ptext.draw(
             config.TITLE,
             centerx=context.screenInfo.current_w / 2,
-            centery=context.screenInfo.current_h - (img.get_height() / 2) - PADDING,
+            centery=context.screenInfo.current_h
+            - (img.get_height() / 2)
+            - line_padding,
             color="pink",
             gcolor="red",
             fontname="fonts/RobotoCondensed-Bold.ttf",
             fontsize=80,
         )
     else:
-        context.screen.blit(img, (PADDING, PADDING))
-        context.screen.blit(img, (context.screenInfo.current_w - img.get_width() - PADDING, PADDING))
+        context.screen.blit(img, (line_padding, line_padding))
+        context.screen.blit(
+            img,
+            (
+                context.screenInfo.current_w - img.get_width() - line_padding,
+                line_padding,
+            ),
+        )
 
         ptext.draw(
             config.TITLE,
@@ -379,6 +436,7 @@ def draw_title(context):
             fontname="fonts/RobotoCondensed-Bold.ttf",
             fontsize=80,
         )
+
 
 def draw_splash(context):
     context.state = GameState.SPLASH
@@ -406,212 +464,8 @@ def draw_splash(context):
     context.state = GameState.IDLE
     render_all(context)
 
-def nameedit_modal(context):
-    context.state = GameState.INPUT
-
-    # which name we are editing
-    editing = 0
-
-    # draw a modal box at 85% of the screen. Stop the clock.
-    context.state = GameState.SETUP
-
-    # black out the modal
-    width = context.screenInfo.current_w * 0.15  # 85% total
-    height = context.screenInfo.current_h * 0.10  # 75% total
-
-    input_height = 80
-    input_spacing = 200  # spacing between inputs
-    inputs_offset = 150  # offset from top of modal where inputs begin
-    label_offset = 100  # offset from top of modal where labels begin
-
-    # inside modal
-    pygame.draw.rect(
-        context.screen,
-        (60, 60, 60),
-        (
-            width,
-            height,
-            context.screenInfo.current_w - (width * 2),
-            context.screenInfo.current_h - (height * 2),
-        ),
-    )
-
-    # outside edge
-    pygame.draw.rect(
-        context.screen,
-        (210, 0, 100),
-        (
-            width,
-            height,
-            context.screenInfo.current_w - (width * 2),
-            context.screenInfo.current_h - height * 2,
-        ),
-    )
-
-    # start a bit inset in the modal
-    xpos = width + 60
-
-    # Center the title
-    ptext.draw(
-        "Edit Player Names (ESC to exit)",
-        centerx=context.screenInfo.current_w / 2,
-        centery=height + 50,
-        fontname="fonts/RobotoCondensed-Bold.ttf",
-        fontsize=50,
-    )
-
-    for i in range(0, config.PLAYERS):
-        # input box - grey until edit is active
-        pygame.draw.rect(
-            context.screen,
-            (60, 60, 60),
-            (
-                xpos - 4,
-                height + inputs_offset + (i * input_spacing),
-                context.screenInfo.current_w - (width * 2) - 120,
-                input_height,
-            ),
-        )
-
-        # input label
-        drawtext(context,
-            "robo36",
-            f"Player {(i+1)}",
-            xpos,
-            height + label_offset + (i * input_spacing),
-            (255, 255, 255),
-            (210, 0, 100),
-        )
-
-        # player name
-        drawtext(context,
-            "robo50",
-            context.player_names[i],
-            xpos,
-            height + inputs_offset + (i * input_spacing),
-            (255, 255, 0),
-            (60, 60, 60),
-        )
-
-    textmanager = pygame_textinput.TextInputManager()
-    input_font = pygame.font.Font("fonts/RobotoCondensed-Bold.ttf", 50)
-
-    textinput = pygame_textinput.TextInputVisualizer(
-        manager=textmanager,
-        font_color=(255, 255, 0),
-        cursor_color=(255, 255, 255),
-        font_object=input_font,
-    )
-
-    textinput.value = context.player_names[editing]
-    textmanager.cursor_pos = len(context.player_names[editing])
-
-    pygame.key.set_repeat(200, 25)
-
-    while True:
-        events = pygame.event.get()
-        # pass all of the events to textinput for input handling
-        textinput.update(events)
-
-        # See if we care about any of the events that just fired
-        for event in events:
-            if event.type == pygame.QUIT:
-                print("Quitting..")
-                if context.serial_port:
-                    print("Closing serial port")
-                    context.serial_port.close()
-                pygame.quit()
-
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                context.state = GameState.IDLE
-                context.player_names[editing] = textinput.value
-                context.save()
-                render_all(context)
-                return
-
-            # Feed it with events every frame
-            if event.type == pygame.KEYUP and (
-                event.key in (pygame.K_UP, pygame.K_DOWN, pygame.K_RETURN)
-            ):
-                # store the old data
-                context.player_names[editing] = textinput.value
-                context.save()
-
-                # clear the text input box, make it grey and put the text back.
-                pygame.draw.rect(
-                    context.screen,
-                    (60, 60, 60),
-                    (
-                        xpos - 4,
-                        height + inputs_offset + (editing * input_spacing),
-                        context.screenInfo.current_w - (width * 2) - 120,
-                        input_height,
-                    ),
-                )
-
-                drawtext(context,
-                    "robo50",
-                    context.player_names[editing],
-                    xpos,
-                    height + inputs_offset + (editing * input_spacing),
-                    (255, 255, 0),
-                    (60, 60, 60),
-                )
-
-                # move to the next row or go up if requested
-                if event.key == pygame.K_UP:
-                    context.player_names[editing] = textinput.value
-                    editing = editing - 1
-
-                if event.key in (pygame.K_DOWN,pygame.K_RETURN):
-                    context.player_names[editing] = textinput.value
-                    editing = editing + 1
-
-                if editing > 3:
-                    editing = 0
-
-                if editing < 0:
-                    editing = 3
-
-                # get us a new object for this row
-                del textinput
-
-                textinput = pygame_textinput.TextInputVisualizer(
-                    manager=textmanager,
-                    font_color=(255, 255, 0),
-                    cursor_color=(255, 255, 255),
-                    font_object=input_font,
-                )
-
-                textinput.value = context.player_names[editing]
-                textmanager.cursor_pos = len(context.player_names[editing])
-
-                # break so we don't overprocess events
-                break
-
-            # clear the region
-            pygame.draw.rect(
-                context.screen,
-                (30, 30, 30),
-                (
-                    xpos - 4,
-                    height + inputs_offset + (editing * input_spacing),
-                    context.screenInfo.current_w - (width * 2) - 120,
-                    input_height,
-                ),
-            )
-
-            # Blit its surface onto the screen
-            # thre is a slight problem here that the text drawing is off?
-            context.screen.blit(
-                textinput.surface,
-                (xpos, height + inputs_offset + (editing * input_spacing)),
-            )
-
-        pygame.display.update()
 
 def draw_help(context):
-    
     helpstr = [
         {"key": "SPACE", "text": "Stop/Start clock"},
         {"key": "SHIFT-ESC", "text": "Quit"},
@@ -681,8 +535,9 @@ def draw_help(context):
     ypos = ypos + 60
 
     for k in helpstr:
-        drawtext(context,"robo36", k["key"], xpos, ypos, (255, 255, 255), (60, 60, 60))
-        drawtext(context,
+        drawtext(context, "robo36", k["key"], xpos, ypos, (255, 255, 255), (60, 60, 60))
+        drawtext(
+            context,
             "robo36",
             k["text"],
             context.screenInfo.current_w / 2,
@@ -705,6 +560,7 @@ def draw_help(context):
 
     context.state = GameState.IDLE
     render_all(context)
+
 
 def draw_state(context):
     statestr = ""
@@ -730,12 +586,15 @@ def draw_state(context):
     )
 
 def draw_clock(context):
+    """draw the large clock in the center of the screen
+
+    Args:
+        context (Context): current game context
+    """
     minutes = math.floor(context.clock / 60000)
     sec = int((context.clock - (minutes * 60000)) / 1000)
 
     # blank out the area the clock will occupy
-    fontheight = context.fonts["robo250"].get_height()
-
     ptext.draw(
         f"{minutes:d}:{sec:02d}",
         centerx=context.screenInfo.current_w / 2,
@@ -748,11 +607,6 @@ def draw_clock(context):
     )
 
     draw_state(context)
-
-
-def do_beep(context):
-    # make a beep
-    context.sound.play("BEEP")
 
 def draw_gamestate(context):
     if context.state == GameState.BUZZIN:
@@ -788,207 +642,218 @@ def render_all(context):
 
     pygame.display.flip()
 
-def main():
+def handle_serial_input(context):
     """
-    Main Program Start
-    """
-    context = Context()
-    context.restore()
-
-    # I/O    
-    setup_gpio(context)
-    context.serial_port = setup_serial(context, config.SERIAL_DEVICE)
+    process any incoming serial data
     
-    init_game(context)
+    Args:
+        context (Context): current game context 
+    """
+    
+    # do we have serial data?
+    if context.serial_port:
+        if context.serial_port.inWaiting() > 0:
+            received_data = context.serial_port.read(
+                context.serial_port.inWaiting()
+            )
+            print("recv: " + received_data)
+            parts = received_data.split()
+            if (
+                parts[0] == b"SWITCH"
+                and parts[2] == b"PRESSED"
+                and context.state == GameState.RUNNING
+            ):
+                button_event(context, int(parts[1]))
+                ser_event = pygame.event.Event(int(parts[1]))
+                pygame.event.post(ser_event)
 
-    render_all(context)
+def handle_clock_event(context):
+    """
+    process one tick of the clock
 
+    Args:
+        context (Context): current game context
+    """
+    if context.clock > 0:
+        if context.state == GameState.RUNNING:
+            context.clock = context.clock - config.CLOCK_STEP
+            minutes = math.floor(context.clock / 60000)
+            sec = int((context.clock - (minutes * 60000)) / 1000)
+
+            if context.prev_sec != sec:
+                context.prev_sec = sec
+                if context.prev_sec <= 4:
+                    context.sound.play("BEEP")
+
+            # handle timeout
+            if context.clock == 0:
+                # play sound
+                set_all_leds(context, True)
+
+                context.sound.play("TIMESUP")
+                context.state = GameState.TIMEUP
+
+    if context.state == GameState.IDLE:
+        # in idle state, walk the LEDs.
+        context.led_attract_cycle += 1
+        if context.led_attract_cycle > config.PLAYERS - 1:
+            context.led_attract_cycle = 0
+        set_led(context, context.led_attract_cycle, True, True)
+
+def handle_keyboard_event(context,event):
+
+    # handle quit event (shift-escape)
+    if event.key == pygame.K_ESCAPE and pygame.key.get_mods() & pygame.KMOD_SHIFT:
+        return 0
+    
+    # MC Controls
+    #
+    # 1,2,3,4 = Adds a point to that player 1,2,3,4
+    # q,w,e,r = Deduct a point from player 1,2,3,4
+    # shift-a = reset all
+    # shift-z = reset round
+    # (see help for the rest)
+    #
+    if event.key == pygame.K_1:
+        context.scores[0] += 1
+        context.save()
+
+    if event.key == pygame.K_2:
+        context.scores[1] += 1
+        context.save()
+
+    if event.key == pygame.K_3:
+        context.scores[2] += 1
+        context.save()
+
+    if event.key == pygame.K_4:
+        context.scores[3] += 1
+        context.save()
+
+    if event.key == pygame.K_q:
+        context.scores[0] -= 1
+        context.save()
+
+    if event.key == pygame.K_w:
+        context.scores[1] -= 1
+        context.save()
+
+    if event.key == pygame.K_e:
+        context.scores[2] -= 1
+        context.save()
+
+    if event.key == pygame.K_r:
+        context.scores[3] -= 1
+        context.save()
+
+    # if we are not running in debug mode we can emulate the buttons
+    # with the keypad
+    if config.PLATFORM != "rpi" and context.state == GameState.RUNNING:
+        if event.key == pygame.K_KP1:
+            button_event(context, config.PLAYER_MAP[0])
+
+        if event.key == pygame.K_KP2:
+            button_event(context, config.PLAYER_MAP[1])
+
+        if event.key == pygame.K_KP3:
+            button_event(context, config.PLAYER_MAP[2])
+
+        if event.key == pygame.K_KP4:
+            button_event(context, config.PLAYER_MAP[3])
+
+    # sounds
+    if event.key == pygame.K_b:
+        context.sound.play("BUZZ")
+
+    if event.key == pygame.K_t:
+        context.sound.play("TIMESUP")
+
+    # clock changes
+    if event.key == pygame.K_p:
+        context.clock = context.clock + 5000
+
+    if event.key == pygame.K_l:
+        context.clock = context.clock - 5000
+        context.clock = max(context.clock, 0)
+
+    # reset all
+    if (
+        event.key == pygame.K_a
+        and pygame.key.get_mods() & pygame.KMOD_SHIFT
+    ):
+        context.reset_game()
+        draw_clock(context)
+        context.save()
+
+    # reset round
+    if (
+        event.key == pygame.K_z
+        and pygame.key.get_mods() & pygame.KMOD_SHIFT
+    ):
+        context.reset_clock()
+        draw_clock(context)
+
+    if event.key == pygame.K_h:
+        draw_help(context)
+
+    if event.key == pygame.K_i:
+        context.invert_display = not context.invert_display
+
+    if event.key == pygame.K_n:
+        modal = NameEditor(context)
+        modal.run()
+
+    if event.key == pygame.K_s and context.state == GameState.IDLE:
+        draw_splash()
+
+    # space -- transitions state
+    if event.key == pygame.K_SPACE:
+        set_all_leds(context, False)
+        context.player_buzzed_in = -1
+        if context.state == GameState.BUZZIN:
+            context.sound.play("BEEP")
+            context.state = GameState.RUNNING
+        else:
+            if context.state == GameState.IDLE:
+                context.sound.play("BEEP")
+                context.state = GameState.RUNNING
+            else:
+                if context.state == GameState.TIMEUP:
+                    # you can either add time here, or if we
+                    # are at zero we will start at zero
+                    if context.clock == 0:
+                        context.clock = config.MAX_CLOCK
+                    context.state = GameState.RUNNING
+                else:
+                    context.state = GameState.IDLE
+
+def event_loop(context):
+    """
+    main game event loop
+
+    Args:
+        context (_type_): _description_
+    """
     # ------------------ main event loop ------------------
     running = 1
     pygame.time.set_timer(config.PYGAME_CLOCKEVENT, config.CLOCK_STEP)
 
-    # flush the serial buffers at the start of the game
-    if context.serial_port:
-        context.serial_port.reset_input_buffer()
-        context.serial_port.reset_output_buffer()
-
     print("\nStarting main loop...\n")
 
     while running:
-        # do we have serial data?
-        if context.serial_port:
-            if context.serial_port.inWaiting() > 0:
-                received_data = context.serial_port.read(
-                    context.serial_port.inWaiting()
-                )
-                print("recv: %s" % received_data)
-                parts = received_data.split()
-                if (
-                    parts[0] == b"SWITCH"
-                    and parts[2] == b"PRESSED"
-                    and context.state == GameState.RUNNING
-                ):
-                    button_event(context,int(parts[1]))
-                    ser_event = pygame.event.Event(int(parts[1]))
-                    pygame.event.post(ser_event)
-
+        handle_serial_input(context)
+        
         # we do not poll here because it will induce very high cpu.
         for event in pygame.event.get():
-            if event.type == pygame.QUIT or (
-                event.type == pygame.KEYDOWN
-                and event.key == pygame.K_ESCAPE
-                and pygame.key.get_mods() & pygame.KMOD_SHIFT
-            ):
+            
+            if event.type == pygame.QUIT:
                 running = 0
-
-            # player scores
+                
             if event.type == pygame.KEYDOWN:
-                # MC Controls
-                #
-                # 1,2,3,4 = Adds a point to that player 1,2,3,4
-                # q,w,e,r = Deduct a point from player 1,2,3,4
-                # shift-a = reset all
-                # shift-z = reset round
-                # (see help for the rest)
-                #
-                if event.key == pygame.K_1:
-                    context.scores[0] += 1
-                    context.save()
-
-                if event.key == pygame.K_2:
-                    context.scores[1] += 1
-                    context.save()
-
-                if event.key == pygame.K_3:
-                    context.scores[2] += 1
-                    context.save()
-
-                if event.key == pygame.K_4:
-                    context.scores[3] += 1
-                    context.save()
-
-                if event.key == pygame.K_q:
-                    context.scores[0] -= 1
-                    context.save()
-
-                if event.key == pygame.K_w:
-                    context.scores[1] -= 1
-                    context.save()
-
-                if event.key == pygame.K_e:
-                    context.scores[2] -= 1
-                    context.save()
-
-                if event.key == pygame.K_r:
-                    context.scores[3] -= 1
-                    context.save()
-
-                # if we are not running in debug mode we can emulate the buttons
-                # with the keypad
-                if config.PLATFORM != "rpi" and context.state == GameState.RUNNING:
-                    if event.key == pygame.K_KP1:
-                        button_event(context,config.PLAYER_MAP[0])
-
-                    if event.key == pygame.K_KP2:
-                        button_event(context,config.PLAYER_MAP[1])
-
-                    if event.key == pygame.K_KP3:
-                        button_event(context,config.PLAYER_MAP[2])
-                    
-                    if event.key == pygame.K_KP4:
-                        button_event(context,config.PLAYER_MAP[3])
-
-                # sounds
-                if event.key == pygame.K_b:
-                    context.sound.play("BUZZ")
-
-                if event.key == pygame.K_t:
-                    context.sound.play("TIMESUP")
-
-                # clock changes
-                if event.key == pygame.K_p:
-                    context.clock = context.clock + 5000
-
-                if event.key == pygame.K_l:
-                    context.clock = context.clock - 5000
-                    context.clock = max(context.clock, 0)
-
-                # reset all
-                if (
-                    event.key == pygame.K_a
-                    and pygame.key.get_mods() & pygame.KMOD_SHIFT
-                ):
-                    context.reset_game()
-                    draw_clock(context)
-                    context.save()
-
-                # reset round
-                if (
-                    event.key == pygame.K_z
-                    and pygame.key.get_mods() & pygame.KMOD_SHIFT
-                ):
-                    context.reset_clock()
-                    draw_clock(context)
-
-                if event.key == pygame.K_h:
-                    draw_help(context)
-
-                if event.key == pygame.K_i:
-                    context.invert_display = not context.invert_display
-
-                if event.key == pygame.K_n:
-                    nameedit_modal(context)
-
-                if event.key == pygame.K_s and context.state == GameState.IDLE:
-                    draw_splash()
-
-                # space -- transitions state
-                if event.key == pygame.K_SPACE:
-                    set_all_leds(context, False)
-                    context.player_buzzed_in = -1
-                    if context.state == GameState.BUZZIN:
-                        do_beep(context)
-                        context.state = GameState.RUNNING
-                    else:
-                        if context.state == GameState.IDLE:
-                            do_beep(context)
-                            context.state = GameState.RUNNING
-                        else:
-                            if context.state == GameState.TIMEUP:
-                                # you can either add time here, or if we
-                                # are at zero we will start at zero
-                                if context.clock== 0:
-                                    context.clock = config.MAX_CLOCK
-                                context.state = GameState.RUNNING
-                            else:
-                                context.state = GameState.IDLE
+                handle_keyboard_event(context, event)
 
             if event.type == config.PYGAME_CLOCKEVENT:
-                if context.clock > 0:
-                    if context.state == GameState.RUNNING:
-                        context.clock = context.clock - config.CLOCK_STEP
-                        minutes = math.floor(context.clock / 60000)
-                        sec = int((context.clock - (minutes * 60000)) / 1000)
-
-                        if context.prev_sec != sec:
-                            context.prev_sec = sec
-                            if context.prev_sec <= 4:
-                                do_beep(context)
-
-                        # handle timeout
-                        if context.clock == 0:
-                            # play sound
-                            set_all_leds(context, True)
-
-                            context.sound.play("TIMESUP")
-                            context.state = GameState.TIMEUP
-
-                if context.state == GameState.IDLE:
-                    # in idle state, walk the LEDs.
-                    context.led_attract_cycle += 1
-                    if context.led_attract_cycle > config.PLAYERS - 1:
-                        context.led_attract_cycle = 0
-                    set_led(context, context.led_attract_cycle, True, True)
+                handle_clock_event(context)
 
             if context.player_buzzed_in > -1:
                 # now handle player buzz-in. The player number will have been set via
@@ -1004,6 +869,23 @@ def main():
         render_all(context)
         pygame.display.flip()
         pygame.time.Clock().tick(config.FPS)
+
+
+def main():
+    """
+    Main Program Start
+    """
+    context = Context()
+    context.restore()
+
+    # I/O
+    setup_gpio(context)
+    context.serial_port = setup_serial(context, config.SERIAL_DEVICE)
+
+    init_game(context)
+    render_all(context)
+    event_loop(context)
+
 
 
 if __name__ == "__main__":
