@@ -585,6 +585,7 @@ def draw_state(context):
         fontsize=90,
     )
 
+
 def draw_clock(context):
     """draw the large clock in the center of the screen
 
@@ -607,6 +608,7 @@ def draw_clock(context):
     )
 
     draw_state(context)
+
 
 def draw_gamestate(context):
     if context.state == GameState.BUZZIN:
@@ -642,20 +644,19 @@ def render_all(context):
 
     pygame.display.flip()
 
+
 def handle_serial_input(context):
     """
     process any incoming serial data
-    
+
     Args:
-        context (Context): current game context 
+        context (Context): current game context
     """
-    
+
     # do we have serial data?
     if context.serial_port:
         if context.serial_port.inWaiting() > 0:
-            received_data = context.serial_port.read(
-                context.serial_port.inWaiting()
-            )
+            received_data = context.serial_port.read(context.serial_port.inWaiting())
             print("recv: " + received_data)
             parts = received_data.split()
             if (
@@ -666,6 +667,7 @@ def handle_serial_input(context):
                 button_event(context, int(parts[1]))
                 ser_event = pygame.event.Event(int(parts[1]))
                 pygame.event.post(ser_event)
+
 
 def handle_clock_event(context):
     """
@@ -700,12 +702,12 @@ def handle_clock_event(context):
             context.led_attract_cycle = 0
         set_led(context, context.led_attract_cycle, True, True)
 
-def handle_keyboard_event(context,event):
 
+def handle_keyboard_event(context, event):
     # handle quit event (shift-escape)
     if event.key == pygame.K_ESCAPE and pygame.key.get_mods() & pygame.KMOD_SHIFT:
         return 0
-    
+
     # MC Controls
     #
     # 1,2,3,4 = Adds a point to that player 1,2,3,4
@@ -777,19 +779,13 @@ def handle_keyboard_event(context,event):
         context.clock = max(context.clock, 0)
 
     # reset all
-    if (
-        event.key == pygame.K_a
-        and pygame.key.get_mods() & pygame.KMOD_SHIFT
-    ):
+    if event.key == pygame.K_a and pygame.key.get_mods() & pygame.KMOD_SHIFT:
         context.reset_game()
         draw_clock(context)
         context.save()
 
     # reset round
-    if (
-        event.key == pygame.K_z
-        and pygame.key.get_mods() & pygame.KMOD_SHIFT
-    ):
+    if event.key == pygame.K_z and pygame.key.get_mods() & pygame.KMOD_SHIFT:
         context.reset_clock()
         draw_clock(context)
 
@@ -827,6 +823,7 @@ def handle_keyboard_event(context,event):
                 else:
                     context.state = GameState.IDLE
 
+
 def event_loop(context):
     """
     main game event loop
@@ -844,10 +841,10 @@ def event_loop(context):
         # Handle Serial Input
         handle_serial_input(context)
         # Handle Events
-        for event in pygame.event.get():   
+        for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = 0
-            
+
             if event.type == pygame.KEYDOWN:
                 handle_keyboard_event(context, event)
 
@@ -869,6 +866,7 @@ def event_loop(context):
         pygame.display.flip()
         pygame.time.Clock().tick(config.FPS)
 
+
 def main():
     """
     Main Program Start
@@ -883,7 +881,6 @@ def main():
     init_game(context)
     render_all(context)
     event_loop(context)
-
 
 
 if __name__ == "__main__":
