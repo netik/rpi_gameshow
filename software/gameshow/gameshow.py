@@ -841,14 +841,13 @@ def event_loop(context):
     print("\nStarting main loop...\n")
 
     while running:
+        # Handle Serial Input
         handle_serial_input(context)
-        
-        # we do not poll here because it will induce very high cpu.
-        for event in pygame.event.get():
-            
+        # Handle Events
+        for event in pygame.event.get():   
             if event.type == pygame.QUIT:
                 running = 0
-                
+            
             if event.type == pygame.KEYDOWN:
                 handle_keyboard_event(context, event)
 
@@ -869,7 +868,6 @@ def event_loop(context):
         render_all(context)
         pygame.display.flip()
         pygame.time.Clock().tick(config.FPS)
-
 
 def main():
     """
