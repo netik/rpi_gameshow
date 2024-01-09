@@ -705,7 +705,7 @@ def handle_serial_input(context):
     if context.serial_port:
         if context.serial_port.inWaiting() > 0:
             received_data = context.serial_port.read(context.serial_port.inWaiting())
-            print("recv: " + received_data)
+            print("recv: " + str(received_data))
             parts = received_data.split()
             if (
                 parts[0] == b"SWITCH"
