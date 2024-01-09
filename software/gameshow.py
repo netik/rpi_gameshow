@@ -9,12 +9,16 @@ J. Adams <jna@retina.net>
 """
 
 import os
+import sys
 import math
 import serial
 
 import pygame
+import pygame.gfxdraw
 import ptext
 import config
+
+from particleutil import spawn_exploding_particles
 
 from GameState import GameState
 from Context import Context
@@ -247,6 +251,16 @@ def handle_buzz_in(context):
     # light only that player
     set_led(context, context.player_buzzed_in, True, True)
 
+    # explode some particles
+    spawn_exploding_particles(
+        context.screenInfo,
+        context.particle_group,
+        (
+            (context.player_buzzed_in + 0.5) * context.screenInfo.current_w / config.PLAYERS,
+            120
+        ),
+        500
+    )
 
 def draw_scores(context):
     i = 1
@@ -255,7 +269,7 @@ def draw_scores(context):
         bgcolor = context.colors["black"]  # black
 
         if context.player_buzzed_in == (i - 1):
-            bgcolor = context.colors["blue"]
+            bgcolor = context.colors["salmon"]
 
         if context.invert_display:
             pygame.draw.rect(
@@ -274,7 +288,7 @@ def draw_scores(context):
                 context.player_names[i - 1],
                 centerx=(context.screenInfo.current_w / 8 * ((i * 2) - 1)),
                 centery=60,
-                color=context.colors["lightgrey"],
+                color=context.colors["black"] if context.player_buzzed_in == (i - 1) else context.colors["lightgrey"],
                 fontname="fonts/RobotoCondensed-Bold.ttf",
                 fontsize=80,
             )
@@ -284,7 +298,7 @@ def draw_scores(context):
                 f"{context.scores[i - 1]:d}",
                 centerx=(context.screenInfo.current_w / 8 * ((i * 2) - 1)),
                 centery=170,
-                color=context.colors["white"],
+                color=context.colors["black"] if context.player_buzzed_in == (i - 1) else context.colors["lightgrey"],
                 fontname="fonts/RobotoCondensed-Bold.ttf",
                 fontsize=120,
             )
@@ -362,7 +376,7 @@ def draw_title(context):
     Args:
         context (Context): current game context
     """
-    img = pygame.image.load(config.LOGO)
+    img = pygame.image.load(config.LOGO).convert_alpha()
     line_padding = 60
 
     if context.invert_display:
@@ -384,14 +398,15 @@ def draw_title(context):
         # title
         ptext.draw(
             config.TITLE,
-            centerx=context.screenInfo.current_w / 2,
-            centery=context.screenInfo.current_h
+            centerx=context.screenInfo.current_w / 2 + 4,
+            centery=context.screenInfo.current_h + 4
             - (img.get_height() / 2)
             - line_padding,
-            color="pink",
-            gcolor="red",
+            color="white",
             fontname="fonts/RobotoCondensed-Bold.ttf",
             fontsize=80,
+            shadow=(1,1),
+            scolor="black"
         )
     else:
         context.screen.blit(img, (line_padding, line_padding))
@@ -559,6 +574,8 @@ def draw_state(context):
         color="purple",
         fontname="fonts/RobotoCondensed-Bold.ttf",
         fontsize=90,
+        shadow=(1,1),
+        scolor="black"
     )
 
 
@@ -571,16 +588,16 @@ def draw_clock(context):
     minutes = math.floor(context.clock / 60000)
     sec = int((context.clock - (minutes * 60000)) / 1000)
 
-    # blank out the area the clock will occupy
+    # draw clock
     ptext.draw(
         f"{minutes:d}:{sec:02d}",
         centerx=context.screenInfo.current_w / 2,
         centery=context.screenInfo.current_h / 3 + 100,
-        background="black",
         color="pink",
-        gcolor="red",
         fontname="fonts/RobotoCondensed-Bold.ttf",
         fontsize=250,
+        shadow=(1,1),
+        scolor="black"
     )
 
     draw_state(context)
@@ -589,7 +606,7 @@ def draw_clock(context):
 def draw_gamestate(context):
     if context.state == GameState.BUZZIN:
         # draw their name
-        msg = f"--- Player {context.player_buzzed_in + 1}: {context.player_names[context.player_buzzed_in]}"
+        msg = f"{context.player_names[context.player_buzzed_in]} Buzzed in!"
 
         message_y = 180
         if context.invert_display:
@@ -599,38 +616,66 @@ def draw_gamestate(context):
             msg,
             centerx=context.screenInfo.current_w / 2,
             centery=message_y,
-            owidth=1,
-            ocolor=(180, 0, 0),
-            color=context.colors["white"],
+            shadow=(1,1),
+            color=context.colors["dropbrown"],
             fontname="fonts/RobotoCondensed-Bold.ttf",
-            fontsize=90,
+            fontsize=90
         )
 
-def draw_radial_gradient(context, color1, color2):
+def draw_radial(context, color1, color2, width=40):
+    """
+    Draws a radial circus-tent like background
+    """
     center = [context.screenInfo.current_w/2, context.screenInfo.current_h+100]
     w = context.screenInfo.current_w
     h = context.screenInfo.current_h
-    radius = math.sqrt((w/2)**2 + (h/2)**2)  # maximum distance to the window boundary
-
-    i = 0 
+    # radius = math.sqrt((w/2)**2 + (h/2)**2)  # maximum distance to the window boundary
+    radius = w * 3
+    i = 0
+    color_flip=False
     while i < max(w, h):
         r = i / max(w, h)
-        color = (
-            color1[0] * (1 - r) + color2[0] * r,
-            color1[1] * (1 - r) + color2[1] * r,
-            color1[2] * (1 - r) + color2[2] * r
-        )
+        if color_flip:
+            color = color1
+        else:
+            color = color2
+        
+        # gradient
+        #color = (
+        #    color1[0] * (1 - r) + color2[0] * r,
+        #    color1[1] * (1 - r) + color2[1] * r,
+        #    color1[2] * (1 - r) + color2[2] * r
+        #)
 
         angle = 2 * math.pi * i / max(w, h) + pygame.time.get_ticks() / 100 / 360
         end_pos = (center[0] + radius * math.cos(angle), center[1] + radius * math.sin(angle))
-        pygame.draw.line(context.screen, color, center, end_pos)
-        i = i + 30
 
+        next_angle = 2 * math.pi * (i+width) / max(w, h) + pygame.time.get_ticks() / 100 / 360
+        next_end_pos = (center[0] + radius * math.cos(next_angle + 0.1), center[1] + radius * math.sin(next_angle + 0.1))
+
+        # draw a triangle that ends outside the viewport to get a sort of circus-tent look
+        pygame.gfxdraw.filled_polygon(context.screen, [center, end_pos, next_end_pos], color)
+        color_flip = not color_flip
+        i = i + width
 
 def render_background(context):
-    color1 = context.colors["pink"]
-    color2 = context.colors["grey"]    
-    draw_radial_gradient(context, color1, color2)
+    """
+    Render the background
+    """
+    if not config.RENDER_BACKGROUND:
+        return
+
+    color1 = context.colors["bg_one"]
+    color2 = context.colors["bg_two"]    
+    draw_radial(context, color1, color2)
+
+def draw_particles(context):
+    context.particle_group.draw(context.screen)
+
+    # update
+    dt = context.pyclock.tick() / 1000
+    context.particle_group.update(dt)
+    pygame.display.update()
 
 def render_all(context):
     """Render the entire screen"""
@@ -641,6 +686,7 @@ def render_all(context):
     draw_scores(context)
     draw_gamestate(context)
 
+    draw_particles(context)
     # draw LED and debugging if config.PLATFORM is not rpi
     draw_leds(context)
 
@@ -708,7 +754,10 @@ def handle_clock_event(context):
 def handle_keyboard_event(context, event):
     # handle quit event (shift-escape)
     if event.key == pygame.K_ESCAPE and pygame.key.get_mods() & pygame.KMOD_SHIFT:
+        print("Exiting at user request...")
+        pygame.display.quit()
         pygame.quit()
+        sys.exit()
         return
     
     # MC Controls
@@ -880,7 +929,7 @@ def event_loop(context):
         # no rendering should happen before this line.
         render_all(context)
         pygame.display.flip()
-        pygame.time.Clock().tick(config.FPS)
+        context.pyclock.tick(config.FPS)
 
 
 def main():

@@ -20,8 +20,8 @@ SOUND_SET = 2
 
 # main title on all screens
 TITLE = "The Dirty Talk Game Show"
-LOGO = "images/logo.jpg"
-SPLASH = "images/dirtytalk-fs.jpg"
+LOGO = "images/dirtytalk-logo-nobg.png"
+SPLASH = "images/dirtytalk-logo-nobg.png"
 
 # save file name
 STATE_FILE_NAME = "gamestate.pickle"
@@ -53,3 +53,6 @@ if PLATFORM == "pcserial":
     DISPLAY_ID = 1
 else:
     DISPLAY_ID = 0
+
+# Should we render the background and animate it?
+RENDER_BACKGROUND=True

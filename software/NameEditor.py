@@ -134,7 +134,7 @@ class NameEditor:
 
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                     self.context.state = GameState.IDLE
-                    self.context.player_names[editing] = textinput.value
+                    self.context.player_names[editing] = textinput.value.strip()
                     self.context.save()
                     return
 
@@ -144,7 +144,7 @@ class NameEditor:
                     in (pygame.K_UP, pygame.K_DOWN, pygame.K_RETURN, pygame.K_TAB)
                 ):
                     # store the old data
-                    self.context.player_names[editing] = textinput.value
+                    self.context.player_names[editing] = textinput.value.strip()
                     self.context.save()
 
                     # clear the text input box, make it grey and put the text back.
@@ -171,11 +171,11 @@ class NameEditor:
 
                     # move to the next row or go up if requested
                     if event.key == pygame.K_UP:
-                        self.context.player_names[editing] = textinput.value
+                        self.context.player_names[editing] = textinput.value.strip()
                         editing = editing - 1
 
                     if event.key in (pygame.K_DOWN, pygame.K_RETURN, pygame.K_TAB):
-                        self.context.player_names[editing] = textinput.value
+                        self.context.player_names[editing] = textinput.value.strip()
                         editing = editing + 1
 
                     if editing > 3:
