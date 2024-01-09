@@ -286,6 +286,7 @@ def draw_scores(context):
                 color=context.colors["black"] if context.player_buzzed_in == (i - 1) else context.colors["lightgrey"],
                 fontname="fonts/RobotoCondensed-Bold.ttf",
                 fontsize=80,
+                shadow=(1,1)
             )
 
             # score
@@ -296,6 +297,7 @@ def draw_scores(context):
                 color=context.colors["black"] if context.player_buzzed_in == (i - 1) else context.colors["white"],
                 fontname="fonts/RobotoCondensed-Bold.ttf",
                 fontsize=120,
+                shadow=(1,1)
             )
 
             # divider
@@ -305,7 +307,7 @@ def draw_scores(context):
                     context.colors["grey"],
                     ((context.screenInfo.current_w / 4 * i - 2), 0),
                     ((context.screenInfo.current_w / 4 * i - 2), 240),
-                    width=2,
+                    width=3,
                 )
 
         else:
