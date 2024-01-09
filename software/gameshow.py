@@ -53,9 +53,9 @@ def serial_send(context, cmd):
     if config.PLATFORM == "pcserial":
         context.serial_port.write(cmd)
         context.serial_port.flush()
-        print("sent: " + cmd)
+        print("sent: " + str(cmd))
         resp = context.serial_port.readline()
-        print("recv: " + resp)
+        print("recv: " + str(resp))
         return True
 
     return False
@@ -168,7 +168,7 @@ def setup_serial(context, device):
 
     while True:
         line = context.serial_port.readline()
-        print("recv: " + line)
+        print("recv: " + str(line))
         if line == b"RESET OK\r\n":
             break
 
