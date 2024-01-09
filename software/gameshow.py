@@ -155,6 +155,13 @@ def setup_serial(context, device):
     if config.PLATFORM != "pcserial":
         return False
 
+    # does the device exist?
+    if not os.path.exists(config.SERIAL_DEVICE):
+        print("Serial device %s does not exist." % config.SERIAL_DEVICE)
+        print("Falling back to PC mode.")
+        config.PLATFORM="pc"
+        return False
+
     context.serial_port = serial.Serial(
         device, 115200, bytesize=8, parity=serial.PARITY_NONE, stopbits=1
     )  # open serial port
@@ -941,6 +948,7 @@ def main():
 
     # I/O
     setup_gpio(context)
+
     context.serial_port = setup_serial(context, config.SERIAL_DEVICE)
 
     init_game(context)
