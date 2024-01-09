@@ -286,7 +286,7 @@ def draw_scores(context):
                 color=context.colors["black"] if context.player_buzzed_in == (i - 1) else context.colors["lightgrey"],
                 fontname="fonts/RobotoCondensed-Bold.ttf",
                 fontsize=80,
-                shadow=(1,1)
+                shadow=(1,1) if context.player_buzzed_in != (i - 1) else None
             )
 
             # score
@@ -297,7 +297,7 @@ def draw_scores(context):
                 color=context.colors["black"] if context.player_buzzed_in == (i - 1) else context.colors["white"],
                 fontname="fonts/RobotoCondensed-Bold.ttf",
                 fontsize=120,
-                shadow=(1,1)
+                shadow=(1,1) if context.player_buzzed_in != (i - 1) else None
             )
 
             # divider
@@ -313,7 +313,7 @@ def draw_scores(context):
         else:
             pygame.draw.rect(
                 context.screen,
-                bgcolor,
+                context.colors["salmon"] if context.player_buzzed_in == (i - 1) else context.colors["bg_two"],
                 (
                     (i - 1) * context.screenInfo.current_w / 4,
                     context.screenInfo.current_h / 2 + 150,
@@ -326,18 +326,20 @@ def draw_scores(context):
                 context.player_names[i - 1],
                 centerx=(context.screenInfo.current_w / 8 * ((i * 2) - 1)),
                 centery=context.screenInfo.current_h / 2 + 200,
-                color=context.colors["lightgrey"],
+                color=context.colors["black"] if context.player_buzzed_in == (i - 1) else context.colors["lightgrey"],
                 fontname="fonts/RobotoCondensed-Bold.ttf",
                 fontsize=80,
+                shadow=(1,1) if context.player_buzzed_in != (i - 1) else None
             )
 
             ptext.draw(
                 f"{context.scores[i - 1]:d}",
                 centerx=(context.screenInfo.current_w / 8 * ((i * 2) - 1)),
                 centery=(context.screenInfo.current_h / 2) + 350,
-                color=context.colors["white"],
+                color=context.colors["black"] if context.player_buzzed_in == (i - 1) else context.colors["white"],
                 fontname="fonts/RobotoCondensed-Bold.ttf",
                 fontsize=120,
+                shadow=(1,1) if context.player_buzzed_in != (i - 1) else None
             )
             pygame.draw.line(
                 context.screen,
@@ -350,7 +352,7 @@ def draw_scores(context):
                     (context.screenInfo.current_w / 4 * i - 2),
                     context.screenInfo.current_h,
                 ),
-                width=2,
+                width=3,
             )
 
         i += 1
@@ -419,10 +421,11 @@ def draw_title(context):
             config.TITLE,
             centerx=context.screenInfo.current_w / 2,
             centery=50 + img.get_height() / 2,
-            color="pink",
-            gcolor="red",
+            color="white",
             fontname="fonts/RobotoCondensed-Bold.ttf",
             fontsize=80,
+            shadow=(1,1),
+            scolor="black"
         )
 
 
