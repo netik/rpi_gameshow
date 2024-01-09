@@ -266,15 +266,10 @@ def draw_scores(context):
     i = 1
 
     while i < config.PLAYERS + 1:
-        bgcolor = context.colors["black"]  # black
-
-        if context.player_buzzed_in == (i - 1):
-            bgcolor = context.colors["salmon"]
-
         if context.invert_display:
             pygame.draw.rect(
                 context.screen,
-                bgcolor,
+                context.colors["salmon"] if context.player_buzzed_in == (i - 1) else context.colors["bg_two"],
                 (
                     (i - 1) * context.screenInfo.current_w / config.PLAYERS,
                     0,
@@ -298,7 +293,7 @@ def draw_scores(context):
                 f"{context.scores[i - 1]:d}",
                 centerx=(context.screenInfo.current_w / 8 * ((i * 2) - 1)),
                 centery=170,
-                color=context.colors["black"] if context.player_buzzed_in == (i - 1) else context.colors["lightgrey"],
+                color=context.colors["black"] if context.player_buzzed_in == (i - 1) else context.colors["white"],
                 fontname="fonts/RobotoCondensed-Bold.ttf",
                 fontsize=120,
             )
