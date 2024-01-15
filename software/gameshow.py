@@ -711,18 +711,19 @@ def handle_serial_input(context):
     # do we have serial data?
     if context.serial_port:
         if context.serial_port.inWaiting() > 0:
-            received_data = context.serial_port.read(context.serial_port.inWaiting())
+            received_data = context.serial_port.readline(context.serial_port.inWaiting())
             print("recv: " + str(received_data))
             parts = received_data.split()
-            if (
-                parts[0] == b"SWITCH"
-                and parts[2] == b"PRESSED"
-                and context.state == GameState.RUNNING
-            ):
-                button_event(context, int(parts[1]))
-                ser_event = pygame.event.Event(int(parts[1]))
-                pygame.event.post(ser_event)
-
+            if ( parts and len(parts) >= 3 ):
+                if (
+                    parts[0] == b"SWITCH"
+                    and parts[2] == b"PRESSED"
+                    and context.state == GameState.RUNNING
+                ):
+                    button_event(context, int(parts[1]))
+                    ser_event = pygame.event.Event(int(parts[1]))
+                    pygame.event.post(ser_event)
+            
 
 def handle_clock_event(context):
     """
