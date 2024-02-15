@@ -1,5 +1,5 @@
 import pygame
-from Particle import Particle, ExplodingParticle
+from Particle import ExplodingParticle
 from random import choice, randint, uniform
 """
     some utility functions for spawning particles
@@ -7,7 +7,7 @@ from random import choice, randint, uniform
 
 def spawn_exploding_particles(screen_info, particle_group, pos, n: int):
     for _ in range(n):
-        color = choice(("red", "yellow", "orange"))
+        color = choice(("pink", "white", "grey"))
         direction = pygame.math.Vector2(uniform(-1,1), uniform(-1, 1))
         direction = direction.normalize()
         speed = randint(50, 400)

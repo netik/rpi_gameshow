@@ -80,7 +80,7 @@ def draw_leds(context):
     """
     draws all LEDs on the screen for debugging
     """
-    if config.PLATFORM != "pc":
+    if config.DEBUG_LEDS == False:
         return
 
     xpos = 20
@@ -229,10 +229,16 @@ def init_game(context):
     initializes the game and screen
     """
     # set display ID here via display = 1 if needed.
-    context.screen = pygame.display.set_mode(
-        (0, 0), pygame.FULLSCREEN, display=config.DISPLAY_ID
-    )
-    context.screenInfo = pygame.display.Info()
+    context.screen = None
+    if config.PLATFORM == "pc":
+        context.screen = pygame.display.set_mode(
+            (1920, 1080)    , pygame.SHOWN)
+        context.screenInfo = pygame.display.Info()
+    else:
+        context.screen = pygame.display.set_mode(
+            (0, 0), pygame.FULLSCREEN, display=config.DISPLAY_ID)
+        context.screenInfo = pygame.display.Info()
+    
     print(context.screenInfo)
 
     # hide mouse
@@ -259,16 +265,25 @@ def handle_buzz_in(context):
     set_led(context, context.player_buzzed_in, True, True)
 
     # explode some particles
+    #spawn_exploding_particles(
+    #     context.screenInfo,
+    #     context.particle_group,
+    #     (
+    #         (context.player_buzzed_in + 0.5) * context.screenInfo.current_w / config.PLAYERS,
+    #         120
+    #     ),
+    #     500
+    # )
     spawn_exploding_particles(
-        context.screenInfo,
-        context.particle_group,
-        (
-            (context.player_buzzed_in + 0.5) * context.screenInfo.current_w / config.PLAYERS,
-            120
-        ),
-        500
-    )
-
+         context.screenInfo,
+         context.particle_group,
+         (
+           context.screenInfo.current_w / 2,
+             120
+         ),
+         500
+     )
+    
 def draw_scores(context):
     i = 1
 
@@ -385,20 +400,22 @@ def draw_title(context):
     img = pygame.image.load(config.LOGO).convert_alpha()
     line_padding = 60
 
+    resized_img = pygame.transform.scale(img, (int(img.get_width() / 2), int(img.get_height() / 2)))
+
     if context.invert_display:
         # logo left and right
         context.screen.blit(
-            img,
+            resized_img,
             (
                 line_padding,
-                context.screenInfo.current_h - img.get_height() - line_padding,
+                context.screenInfo.current_h - resized_img.get_height() - line_padding,
             ),
         )
         context.screen.blit(
-            img,
+            resized_img,
             (
-                context.screenInfo.current_w - img.get_width() - line_padding,
-                context.screenInfo.current_h - img.get_height() - line_padding,
+                context.screenInfo.current_w - resized_img.get_width() - line_padding,
+                context.screenInfo.current_h - resized_img.get_height() - line_padding,
             ),
         )
         # title
@@ -415,11 +432,11 @@ def draw_title(context):
             scolor="black"
         )
     else:
-        context.screen.blit(img, (line_padding, line_padding))
+        context.screen.blit(resized_img, (line_padding, line_padding))
         context.screen.blit(
-            img,
+            resized_img,
             (
-                context.screenInfo.current_w - img.get_width() - line_padding,
+                context.screenInfo.current_w - resized_img.get_width() - line_padding,
                 line_padding,
             ),
         )
@@ -615,18 +632,19 @@ def draw_gamestate(context):
         # draw their name
         msg = f"{context.player_names[context.player_buzzed_in]} Buzzed in!"
 
-        message_y = 180
         if context.invert_display:
-            message_y = 300
-
+            message_y = 125
+        else:
+            message_y = context.screenInfo.current_h - 125
+      
         ptext.draw(
             msg,
             centerx=context.screenInfo.current_w / 2,
             centery=message_y,
             shadow=(1,1),
-            color=context.colors["dropbrown"],
+            color=context.colors["white"],
             fontname="fonts/RobotoCondensed-Bold.ttf",
-            fontsize=90
+            fontsize=150
         )
 
 def draw_radial(context, color1, color2, width=40):
@@ -690,7 +708,9 @@ def render_all(context):
     render_background(context)
     draw_title(context)
     draw_clock(context)
-    draw_scores(context)
+    if context.state != GameState.BUZZIN:
+        draw_scores(context)
+
     draw_gamestate(context)
 
     draw_particles(context)
@@ -760,6 +780,11 @@ def handle_clock_event(context):
 
 
 def handle_keyboard_event(context, event):
+
+    # any keypress will take us out of buzzed in.
+    if context.state == GameState.BUZZIN:
+        context.state = GameState.IDLE
+
     # handle quit event (shift-escape)
     if event.key == pygame.K_ESCAPE and pygame.key.get_mods() & pygame.KMOD_SHIFT:
         print("Exiting at user request...")

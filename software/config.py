@@ -38,7 +38,7 @@ GPIO_LED_MAP = [20, 21, 22, 23]
 # In any mode, 1-4 on the keypad can be used to simulate buzzers
 #
 # PLATFORM = "rpi"  # Running the entire game on a raspberry pi using the onboard GPIO
-# PLATFORM = "pc"  # Running the game in dev mode on a computer, no GPIO
+#PLATFORM = "pc"  # Running the game in dev mode on a computer, no GPIO
 PLATFORM = "pcserial"  # Running on a computer with a serial connection to GPIO board (rev4)
 
 # Serial port device name (if using serial)
@@ -49,3 +49,6 @@ DISPLAY_ID = 0
 
 # Should we render the background and animate it?
 RENDER_BACKGROUND=True
+
+# Should we render the LED state on the screen
+DEBUG_LEDS=False

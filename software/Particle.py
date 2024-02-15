@@ -70,7 +70,7 @@ class ExplodingParticle(Particle):
         self.exploding = False
         self.size = 4
         self.max_size = 50
-        self.inflate_speed = 700
+        self.inflate_speed = 70
         self.fade_speed = 2500
 
     def explosion_timer(self):
