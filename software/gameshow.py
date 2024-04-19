@@ -25,6 +25,8 @@ from Context import Context
 from NameEditor import NameEditor
 from drawutil import drawtext
 
+DEBUG_SERIAL = False
+
 if config.PLATFORM == "rpi":
     from RPi.GPIO import GPIO
 
@@ -53,9 +55,9 @@ def serial_send(context, cmd):
     if config.PLATFORM == "pcserial":
         context.serial_port.write(cmd)
         context.serial_port.flush()
-        print("sent: " + str(cmd))
+        print("sent: " + str(cmd)) if DEBUG_SERIAL else None
         resp = context.serial_port.readline()
-        print("recv: " + str(resp))
+        print("recv: " + str(resp)) if DEBUG_SERIAL else None
         return True
 
     return False
@@ -73,7 +75,6 @@ def button_event(context, channel):
 
     # if GPIO we have to map it back to the right player
     context.player_buzzed_in = config.PLAYER_REVERSE_MAP[channel]
-
 
 # display the LED state on the main screen for debugging
 def draw_leds(context):
@@ -163,7 +164,7 @@ def setup_serial(context, device):
         return False
 
     context.serial_port = serial.Serial(
-        device, 115200, bytesize=8, parity=serial.PARITY_NONE, stopbits=1
+        device, 115200, bytesize=8, parity=serial.PARITY_NONE, stopbits=1, timeout=None
     )  # open serial port
 
     while not context.serial_port.isOpen():
@@ -175,7 +176,7 @@ def setup_serial(context, device):
 
     while True:
         line = context.serial_port.readline()
-        print("recv: " + str(line))
+        print("recv: " + str(line)) if DEBUG_SERIAL else None
         if line == b"RESET OK\r\n":
             break
 
@@ -230,13 +231,25 @@ def init_game(context):
     """
     # set display ID here via display = 1 if needed.
     context.screen = None
-    if config.PLATFORM == "pc":
+    
+    if config.DISPLAY_STYLE == "windowed":
+        # uses default display
         context.screen = pygame.display.set_mode(
-            (1920, 1080)    , pygame.SHOWN)
+            (1920, 1080), pygame.SHOWN)
         context.screenInfo = pygame.display.Info()
-    else:
+    elif config.DISPLAY_STYLE == "borderless":
+        # now let's see how big our screen is
+        # and create a borderless window that's as big as the entire screen
         context.screen = pygame.display.set_mode(
-            (0, 0), pygame.FULLSCREEN, display=config.DISPLAY_ID)
+            (0,0), 
+            pygame.NOFRAME,
+            display=config.DISPLAY_ID)
+        context.screenInfo = pygame.display.Info()
+    elif config.DISPLAY_STYLE == "fullscreen":
+        context.screen = pygame.display.set_mode(
+            (0, 0), 
+            pygame.FULLSCREEN, 
+            display=config.DISPLAY_ID)
         context.screenInfo = pygame.display.Info()
     
     print(context.screenInfo)
@@ -454,6 +467,7 @@ def draw_title(context):
 
 
 def draw_splash(context):
+    print("Drawing splash screen and pausing. Press any key to resume.")
     context.state = GameState.SPLASH
     clear_display(context)
 
@@ -619,7 +633,7 @@ def draw_clock(context):
         centery=context.screenInfo.current_h / 3 + 100,
         color="pink",
         fontname="fonts/RobotoCondensed-Bold.ttf",
-        fontsize=250,
+        fontsize=200,
         shadow=(1,1),
         scolor="black"
     )
@@ -659,7 +673,6 @@ def draw_radial(context, color1, color2, width=40):
     i = 0
     color_flip=False
     while i < max(w, h):
-        r = i / max(w, h)
         if color_flip:
             color = color1
         else:
@@ -732,7 +745,7 @@ def handle_serial_input(context):
     if context.serial_port:
         if context.serial_port.inWaiting() > 0:
             received_data = context.serial_port.readline(context.serial_port.inWaiting())
-            print("recv: " + str(received_data))
+            print("recv: " + str(received_data)) if DEBUG_SERIAL else None
             parts = received_data.split()
             if ( parts and len(parts) >= 3 ):
                 if (
@@ -898,7 +911,7 @@ def handle_keyboard_event(context, event):
         modal.run()
 
     if event.key == pygame.K_s and context.state == GameState.IDLE:
-        draw_splash()
+        draw_splash(context)
 
     # space -- transitions state
     if event.key == pygame.K_SPACE:
@@ -961,7 +974,8 @@ def event_loop(context):
         # the pattern here is to set the state of the game and then render
         # no rendering should happen before this line.
         render_all(context)
-        pygame.display.flip()
+       
+        pygame.display.flip() 
         context.pyclock.tick(config.FPS)
 
 
