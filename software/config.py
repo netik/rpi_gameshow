@@ -43,11 +43,11 @@ PLATFORM = "pcserial"  # Running on a computer with a serial connection to GPIO 
 
 # Serial port device name (if using serial)
 #SERIAL_DEVICE = "/dev/cu.usbserial-21320"
-SERIAL_DEVICE = "/dev/cu.usbserial-120"
+#SERIAL_DEVICE = "/dev/cu.usbserial-120"
+SERIAL_DEVICE = "/dev/cu.usbserial-2120"
 
 # What screen do we run the game on?
 DISPLAY_STYLE = "borderless"  # windowed, borderless, or fullscreen
-
 DISPLAY_ID = 1
 
 # Should we render the background and animate it?

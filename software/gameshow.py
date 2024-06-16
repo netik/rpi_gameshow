@@ -252,6 +252,7 @@ def init_game(context):
             display=config.DISPLAY_ID)
         context.screenInfo = pygame.display.Info()
     
+    print("Screen Info: ")
     print(context.screenInfo)
 
     # hide mouse
@@ -320,7 +321,7 @@ def draw_scores(context):
                 centery=60,
                 color=context.colors["black"] if context.player_buzzed_in == (i - 1) else context.colors["lightgrey"],
                 fontname="fonts/RobotoCondensed-Bold.ttf",
-                fontsize=80,
+                fontsize=70,
                 shadow=(1,1) if context.player_buzzed_in != (i - 1) else None
             )
 
@@ -363,7 +364,7 @@ def draw_scores(context):
                 centery=context.screenInfo.current_h / 2 + 200,
                 color=context.colors["black"] if context.player_buzzed_in == (i - 1) else context.colors["lightgrey"],
                 fontname="fonts/RobotoCondensed-Bold.ttf",
-                fontsize=80,
+                fontsize=70,
                 shadow=(1,1) if context.player_buzzed_in != (i - 1) else None
             )
 
@@ -946,7 +947,7 @@ def event_loop(context):
     running = 1
     pygame.time.set_timer(config.PYGAME_CLOCKEVENT, config.CLOCK_STEP)
 
-    print("\nStarting main loop...\n")
+    print("\nAll systems go! Game Running.\n")
 
     while running:
         # Handle Serial Input

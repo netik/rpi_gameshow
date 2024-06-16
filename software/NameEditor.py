@@ -10,8 +10,8 @@ class NameEditor:
     """
     NameEditor is a modal that allows the user to edit the player names.
     """
-    input_height = 80
-    input_spacing = 200  # spacing between inputs
+    input_height = 60
+    input_spacing = input_height * 2  # spacing between inputs
     inputs_offset = 150  # offset from top of modal where inputs begin
     label_offset = 100  # offset from top of modal where labels begin
 
@@ -25,6 +25,10 @@ class NameEditor:
 
     def run(self):
         self.context.state = GameState.INPUT
+        
+        # setup fonts
+        self.context.load_font("namefont", "RobotoCondensed-Bold.ttf", self.input_height - 10)    
+        input_font = pygame.font.Font("fonts/RobotoCondensed-Bold.ttf", self.input_height - 10)
 
         # which name we are editing
         editing = 0
@@ -63,9 +67,9 @@ class NameEditor:
         ptext.draw(
             "Edit Player Names (ESC to exit)",
             centerx=self.context.screenInfo.current_w / 2,
-            centery=self.height + 50,
+            centery=self.height + self.input_height - 10,
             fontname="fonts/RobotoCondensed-Bold.ttf",
-            fontsize=50,
+            fontsize=self.input_height - 10,
         )
 
         for i in range(0, config.PLAYERS):
@@ -95,7 +99,7 @@ class NameEditor:
             # player name
             drawtext(
                 self.context,
-                "robo50",
+                "namefont",
                 self.context.player_names[i],
                 xpos,
                 self.height + self.inputs_offset + (i * self.input_spacing),
@@ -104,12 +108,12 @@ class NameEditor:
             )
 
         textmanager = pygame_textinput.TextInputManager()
-        input_font = pygame.font.Font("fonts/RobotoCondensed-Bold.ttf", 50)
 
         textinput = pygame_textinput.TextInputVisualizer(
             manager=textmanager,
             font_color=(255, 255, 0),
             cursor_color=(255, 255, 255),
+            cursor_blink_interval=100,
             font_object=input_font,
         )
 
@@ -161,7 +165,7 @@ class NameEditor:
 
                     drawtext(
                         self.context,
-                        "robo50",
+                        "namefont",
                         self.context.player_names[editing],
                         xpos,
                         self.height + self.inputs_offset + (editing * self.input_spacing),
