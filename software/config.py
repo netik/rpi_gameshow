@@ -21,7 +21,7 @@ PYGAME_CLOCKEVENT = pygame.USEREVENT + 1
 SOUND_SET_DIR = "sounds/2"
 
 # main title on all screens
-TITLE = "The Dirty Talk Game Show"
+TITLE = ""
 LOGO = "images/dirtytalk-logo-nobg.png"
 SPLASH = "images/dirtytalk-logo-nobg.png"
 
@@ -44,13 +44,16 @@ GPIO_LED_MAP = [20, 21, 22, 23]
 PLATFORM = "pcserial"  # Running on a computer with a serial connection to GPIO board (rev4)
 
 # Serial port device name (if using serial)
-SERIAL_DEVICE = "/dev/cu.usbserial-84440"
+#SERIAL_DEVICE = "/dev/cu.usbserial-21320"
+#SERIAL_DEVICE = "/dev/cu.usbserial-120"
+SERIAL_DEVICE = "/dev/cu.usbserial-2120"
 
 # What screen do we run the game on?
-DISPLAY_ID = 0
+DISPLAY_STYLE = "borderless"  # windowed, borderless, or fullscreen
+DISPLAY_ID = 1
 
 # Should we render the background and animate it?
-RENDER_BACKGROUND=True
+RENDER_BACKGROUND=False
 
 # Should we render the LED state on the screen
 DEBUG_LEDS=False

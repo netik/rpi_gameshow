@@ -298,7 +298,7 @@ class TextInputVisualizer:
         if self._cursor_visible:
             str_left_of_cursor = self.manager.value[:self.manager.cursor_pos]
             cursor_y = self.font_object.size(str_left_of_cursor)[0]
-            cursor_rect = pygame.Rect(cursor_y, 0, self._cursor_width, self.font_object.get_height())
+            cursor_rect = pygame.Rect(cursor_y, 0, self._cursor_width, self.font_object.get_height() * .80 )
             self._surface.fill(self._cursor_color, cursor_rect)
 
 
