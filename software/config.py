@@ -16,7 +16,9 @@ CLOCK_STEP = 1000  # mS
 PYGAME_CLOCKEVENT = pygame.USEREVENT + 1
 
 # which directory to look in for sounds.
-SOUND_SET = 2
+#
+# 
+SOUND_SET_DIR = "sounds/2"
 
 # main title on all screens
 TITLE = "The Dirty Talk Game Show"
