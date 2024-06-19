@@ -16,9 +16,10 @@ CLOCK_STEP = 1000  # mS
 PYGAME_CLOCKEVENT = pygame.USEREVENT + 1
 
 # which directory to look in for sounds.
-#
-# 
-SOUND_SET_DIR = "sounds/2"
+SOUND_SET_DIR = "sounds/trek/wav"
+
+# the extension of the sound files. all other files will be ignored
+SOUND_EXT = ".wav"
 
 # main title on all screens
 TITLE = "The Dirty Talk Game Show"

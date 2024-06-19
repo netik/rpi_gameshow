@@ -1,10 +1,5 @@
 Gameshow sound sets
 
-Files should be MP3 files. 
-
-They should live numbered directories, sequentally. 
-(TODO: Can we read from the sd card and autogeneate the list?)
-
 Filenames
 
 BUZZ.MP3	Default buzzed in sound if unique sounds is off
