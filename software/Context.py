@@ -48,32 +48,11 @@ class Context:
         # screen
         self.screen = None
 
-        # sound effects
+        # load sound effects
         self.sound = Sound()
-
-        # init pallette
-        self.init_palette()
 
         # particles
         self.particle_group = pygame.sprite.Group()
-
-    def init_palette(self):
-        """
-        Initialize the color palette
-        """
-        self.colors["black"] = pygame.Color(0, 0, 0)
-        self.colors["white"] = pygame.Color(255, 255, 255)
-        self.colors["grey"] = pygame.Color(164, 164, 164, 255)
-        self.colors["red"] = pygame.Color(0, 0, 200, 255)
-        self.colors["salmon"] = pygame.Color(0xfc,0x79,0x65,255)
-        self.colors["blue"] = pygame.Color(0, 0, 200, 255)
-        self.colors["green"] = pygame.Color(0, 200, 0, 255)
-        self.colors["grey"] = pygame.Color(164, 164, 164, 255)
-        self.colors["lightgrey"] = pygame.Color(200, 200, 200, 255)
-        self.colors["pink"] = pygame.Color(255, 0, 255, 255)
-        self.colors["bg_one"] = pygame.Color(0x51, 0x00, 0x2d, 255)
-        self.colors["bg_two"] = pygame.Color(0x41, 0x00, 0x0d, 255)
-        self.colors["dropbrown"] = pygame.Color(0xa7, 0x81, 0x7b, 255)
 
     def reset_game(self):
         """

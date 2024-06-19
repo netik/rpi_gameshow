@@ -21,7 +21,7 @@ PYGAME_CLOCKEVENT = pygame.USEREVENT + 1
 SOUND_SET_DIR = "sounds/2"
 
 # main title on all screens
-TITLE = ""
+TITLE = "The Dirty Talk Game Show"
 LOGO = "images/dirtytalk-logo-nobg.png"
 SPLASH = "images/dirtytalk-logo-nobg.png"
 
@@ -49,11 +49,56 @@ PLATFORM = "pcserial"  # Running on a computer with a serial connection to GPIO 
 SERIAL_DEVICE = "/dev/cu.usbserial-2120"
 
 # What screen do we run the game on?
-DISPLAY_STYLE = "borderless"  # windowed, borderless, or fullscreen
-DISPLAY_ID = 1
+DISPLAY_STYLE = "windowed"  # windowed, borderless, or fullscreen
+DISPLAY_WINDOW_HEIGHT = 1920
+DISPLAY_WINDOW_WIDTH = 1080
+DISPLAY_ID = 0
 
 # Should we render the background and animate it?
-RENDER_BACKGROUND=False
+RENDER_BACKGROUND=True
 
 # Should we render the LED state on the screen
 DEBUG_LEDS=False
+
+# Colors for the game
+THEME_COLORS = {
+    # generics - deprecated
+    "black": pygame.Color(0, 0, 0),
+    "white": pygame.Color(255, 255, 255),
+    "grey": pygame.Color(164, 164, 164, 255),
+    "red": pygame.Color(0xff, 0x0, 0x0, 255),
+    "salmon": pygame.Color(0xfc, 0x79, 0x65, 255),
+    "blue": pygame.Color(0, 0, 200, 255),
+    "green": pygame.Color(0, 200, 0, 255),
+    "lightgrey": pygame.Color(200, 200, 200, 255),
+    "pink": pygame.Color(255, 0, 255, 255),
+
+    "shadow_color": pygame.Color(0x00, 0x00, 0x00, 255),
+
+    "player_score_fg": pygame.Color(0xff, 0xff, 0xff, 255),
+    "player_name_fg": pygame.Color(0xff, 0xff, 0xff, 255),
+    "player_area_bg": pygame.Color(0x41, 0x00, 0x0d, 255),
+
+    # these colors shown when player buzzed in
+    "buzzed_in_bg": pygame.Color(0xfc, 0x79, 0x65, 255),
+    "buzzed_in_fg": pygame.Color(0, 0, 0),
+
+    # center text
+    "clock_text": pygame.Color(0xff, 0xff, 0xff, 255),
+    "state_text": pygame.Color(0xff, 0xff, 0xff, 255),
+    "title_text": pygame.Color(0xff, 0xff, 0xff, 255),
+
+    # lines around scores
+    "separator": pygame.Color(0xff, 0xff, 0xff, 255),
+
+    # used to draw radial background
+    "bg_one": pygame.Color(0x51, 0x00, 0x2d, 255),
+    "bg_two": pygame.Color(0x41, 0x00, 0x0d, 255),
+
+    # help
+    "help_title": pygame.Color(0xfc, 0x79, 0x65, 255),
+    "help_fg": pygame.Color(0xff, 0xff, 0xff, 255),
+    "help_bg": pygame.Color(0x22,0x22,0x22, 255),
+    "help_border": pygame.Color(0xdd, 0x00, 0x00, 255),
+
+}
