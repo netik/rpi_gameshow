@@ -16,6 +16,5 @@ def drawtext(context, font_name, text, xpos, ypos, fg_color, bg_color):
         bg_color (color): background color
     """
     text_surface = context.fonts[font_name].render(text, True, fg_color, bg_color)
-
     context.screen.blit(text_surface, (xpos, ypos))
 

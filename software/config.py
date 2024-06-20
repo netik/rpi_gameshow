@@ -118,7 +118,17 @@ DT_THEME = {
     "help_title": pygame.Color(0xfc, 0x79, 0x65, 255),
     "help_fg": pygame.Color(0xff, 0xff, 0xff, 255),
     "help_bg": pygame.Color(0x22,0x22,0x22, 255),
-    "help_border": pygame.Color(0xdd, 0x00, 0x00, 255)
+    "help_border": pygame.Color(0xdd, 0x00, 0x00, 255),
+
+    # name input box
+    "name_input_modal_fg": pygame.Color(0xff, 0xff, 0xff, 255),
+    "name_input_modal_bg": pygame.Color(210,0,100),
+    "name_input_active_fg": pygame.Color(0xff, 0xff, 0x00, 255),
+    "name_input_active_bg": pygame.Color(0x22,0x22,0x22, 255),
+    "name_input_inactive_fg": pygame.Color(0xaa, 0xaa, 0x00, 255),
+    "name_input_inactive_bg": pygame.Color(0x11,0x11,0x11, 255),
+    "name_input_cursor": pygame.Color(0xff, 0xff, 0xff, 255),
+
 }
 
 # select a theme here
