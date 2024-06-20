@@ -16,10 +16,13 @@ CLOCK_STEP = 1000  # mS
 PYGAME_CLOCKEVENT = pygame.USEREVENT + 1
 
 # which directory to look in for sounds.
-SOUND_SET_DIR = "sounds/trek/wav"
+SOUND_SET_DIR = "sounds/chimes/wav"
 
 # the extension of the sound files. all other files will be ignored
 SOUND_EXT = ".wav"
+
+# should we play a unique sound per player?
+UNIQUE_PLAYER_SOUNDS = True
 
 # main title on all screens
 TITLE = "The Dirty Talk Game Show"
@@ -51,6 +54,9 @@ SERIAL_DEVICE = "/dev/cu.usbserial-2120"
 
 # What screen do we run the game on?
 DISPLAY_STYLE = "windowed"  # windowed, borderless, or fullscreen
+
+# right now our minimum is 1080p HDTV @ 1920x1080. 
+# Anything smaller breaks layout.
 DISPLAY_WINDOW_HEIGHT = 1920
 DISPLAY_WINDOW_WIDTH = 1080
 DISPLAY_ID = 0
@@ -61,9 +67,20 @@ RENDER_BACKGROUND=True
 # Should we render the LED state on the screen
 DEBUG_LEDS=False
 
-# Colors for the game
-THEME_COLORS = {
-    # generics - deprecated
+# --- 
+# themes
+# ---
+# This is a theme for the game. It's a dictionary of colors that are used
+# throughout the game. You can change the colors here to customize the game.
+# The colors are defined as pygame.Color objects.
+
+# Dirty Talk Game Show Theme (DT_THEME)
+# This is the color scheme for the Dirty Talk Game Show. It's a dark theme with
+# reds and pinks.
+DT_THEME = {
+    # We've stoppped using color names here and rely on the theme.
+    # saving this for later. 
+'''
     "black": pygame.Color(0, 0, 0),
     "white": pygame.Color(255, 255, 255),
     "grey": pygame.Color(164, 164, 164, 255),
@@ -73,7 +90,7 @@ THEME_COLORS = {
     "green": pygame.Color(0, 200, 0, 255),
     "lightgrey": pygame.Color(200, 200, 200, 255),
     "pink": pygame.Color(255, 0, 255, 255),
-
+'''
     "shadow_color": pygame.Color(0x00, 0x00, 0x00, 255),
 
     "player_score_fg": pygame.Color(0xff, 0xff, 0xff, 255),
@@ -81,6 +98,7 @@ THEME_COLORS = {
     "player_area_bg": pygame.Color(0x41, 0x00, 0x0d, 255),
 
     # these colors shown when player buzzed in
+    "buzzed_in_message_fg": pygame.Color(0xff, 0xff, 0xff, 255),
     "buzzed_in_bg": pygame.Color(0xfc, 0x79, 0x65, 255),
     "buzzed_in_fg": pygame.Color(0, 0, 0),
 
@@ -100,6 +118,8 @@ THEME_COLORS = {
     "help_title": pygame.Color(0xfc, 0x79, 0x65, 255),
     "help_fg": pygame.Color(0xff, 0xff, 0xff, 255),
     "help_bg": pygame.Color(0x22,0x22,0x22, 255),
-    "help_border": pygame.Color(0xdd, 0x00, 0x00, 255),
-
+    "help_border": pygame.Color(0xdd, 0x00, 0x00, 255)
 }
+
+# select a theme here
+THEME_COLORS=DT_THEME

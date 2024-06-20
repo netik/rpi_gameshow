@@ -274,7 +274,10 @@ def handle_buzz_in(context):
     context.state = GameState.BUZZIN
 
     # play a sound
-    context.sound.play("BUZZ")
+    if config.UNIQUE_PLAYER_SOUNDS:
+        context.sound.play(f"PLAYER{context.player_buzzed_in + 1:d}")
+    else:
+        context.sound.play("BUZZ")
 
     # light only that player
     set_led(context, context.player_buzzed_in, True, True)
@@ -699,7 +702,7 @@ def draw_gamestate(context):
             centerx=context.screenInfo.current_w / 2,
             centery=message_y,
             shadow=(1,1),
-            color=config.THEME_COLORS["white"],
+            color=config.THEME_COLORS["buzzed_in_message_fg"],
             fontname="fonts/RobotoCondensed-Bold.ttf",
             fontsize=150
         )
