@@ -437,7 +437,7 @@ def draw_title(context):
     """
     img = pygame.image.load(config.LOGO).convert_alpha()
     line_padding = 60
-    resized_img = pygame.transform.scale(img, (int(img.get_width() / 2), int(img.get_height() / 2)))
+    resized_img = pygame.transform.scale(img, (int(img.get_width() * config.LOGO_RESIZE_FACTOR), int(img.get_height() * config.LOGO_RESIZE_FACTOR)))
 
     if context.invert_display:
         # logo left and right on bottom
