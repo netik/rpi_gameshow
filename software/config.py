@@ -11,6 +11,7 @@ PLAYERS = 4
 FPS = 60
 
 # starting clock, in milliseconds
+CLOCK_ENABLED = True # if false, the clock will not run or display.
 MAX_CLOCK = 60000  # in microseconds!
 CLOCK_STEP = 1000  # mS
 PYGAME_CLOCKEVENT = pygame.USEREVENT + 1
@@ -24,8 +25,9 @@ SOUND_EXT = ".wav"
 # should we play a unique sound per player?
 UNIQUE_PLAYER_SOUNDS = True
 
-# main title on all screens
-TITLE = "The Dirty Talk Game Show"
+# Branding
+TITLE = "Trivia Show"
+DRAW_LOGO = False
 LOGO = "images/dirtytalk-logo-nobg.png"
 SPLASH = "images/dirtytalk-logo-nobg.png"
 
@@ -53,7 +55,7 @@ PLATFORM = "pcserial"  # Running on a computer with a serial connection to GPIO 
 SERIAL_DEVICE = "/dev/cu.usbserial-2120"
 
 # What screen do we run the game on?
-DISPLAY_STYLE = "windowed"  # windowed, borderless, or fullscreen
+DISPLAY_STYLE = "fullscreen"  # windowed, borderless, or fullscreen
 
 # right now our minimum is 1080p HDTV @ 1920x1080. 
 # Anything smaller breaks layout.
@@ -80,17 +82,6 @@ DEBUG_LEDS=False
 DT_THEME = {
     # We've stoppped using color names here and rely on the theme.
     # saving this for later. 
-'''
-    "black": pygame.Color(0, 0, 0),
-    "white": pygame.Color(255, 255, 255),
-    "grey": pygame.Color(164, 164, 164, 255),
-    "red": pygame.Color(0xff, 0x0, 0x0, 255),
-    "salmon": pygame.Color(0xfc, 0x79, 0x65, 255),
-    "blue": pygame.Color(0, 0, 200, 255),
-    "green": pygame.Color(0, 200, 0, 255),
-    "lightgrey": pygame.Color(200, 200, 200, 255),
-    "pink": pygame.Color(255, 0, 255, 255),
-'''
     "shadow_color": pygame.Color(0x00, 0x00, 0x00, 255),
 
     "player_score_fg": pygame.Color(0xff, 0xff, 0xff, 255),
@@ -102,9 +93,8 @@ DT_THEME = {
     "buzzed_in_bg": pygame.Color(0xfc, 0x79, 0x65, 255),
     "buzzed_in_fg": pygame.Color(0, 0, 0),
 
-    # center text
     "clock_text": pygame.Color(0xff, 0xff, 0xff, 255),
-    "state_text": pygame.Color(0xff, 0xff, 0xff, 255),
+    "state_text": pygame.Color(0x72, 0x09, 0xb7, 255),
     "title_text": pygame.Color(0xff, 0xff, 0xff, 255),
 
     # lines around scores
@@ -131,5 +121,91 @@ DT_THEME = {
 
 }
 
+# bright theme
+BRIGHT_THEME = {
+    # We've stoppped using color names here and rely on the theme.
+    # saving this for later. 
+    "shadow_color": pygame.Color(0x00, 0x00, 0x00, 255),
+
+    "player_score_fg": pygame.Color(0xff, 0xff, 0xff, 255),
+    "player_name_fg": pygame.Color(0xff, 0xff, 0xff, 255),
+    "player_area_bg": pygame.Color(0x3a, 0x86, 0xff, 255),
+
+    # these colors shown when player buzzed in
+    "buzzed_in_message_fg": pygame.Color(0xff, 0xff, 0xff, 255),
+    "buzzed_in_bg": pygame.Color(0xfb, 0x56, 0x07, 255),
+    "buzzed_in_fg": pygame.Color(0, 0, 0),
+
+    # center text fb5607
+    "clock_text": pygame.Color(0xff, 0xff, 0xff, 255),
+    "state_text": pygame.Color(0xfb, 0x56, 0x07, 255),
+    "title_text": pygame.Color(0xff, 0xff, 0xff, 255),
+
+    # lines around scores
+    "separator": pygame.Color(0xff, 0xff, 0xff, 255),
+
+    # used to draw radial background 3a86ff 8338ec
+    "bg_one": pygame.Color(0x3a, 0x86, 0xff, 255),
+    "bg_two": pygame.Color(0x83, 0x38, 0xec, 255),
+
+    # help
+    "help_title": pygame.Color(0xfc, 0x79, 0x65, 255),
+    "help_fg": pygame.Color(0xff, 0xff, 0xff, 255),
+    "help_bg": pygame.Color(0x22,0x22,0x22, 255),
+    "help_border": pygame.Color(0xdd, 0x00, 0x00, 255),
+
+    # name input box
+    "name_input_modal_fg": pygame.Color(0xff, 0xff, 0xff, 255),
+    "name_input_modal_bg": pygame.Color(210,0,100),
+    "name_input_active_fg": pygame.Color(0xff, 0xbe, 0x0b, 255),
+    "name_input_active_bg": pygame.Color(0x22,0x22,0x22, 255),
+    "name_input_inactive_fg": pygame.Color(0xaa, 0xaa, 0x00, 255),
+    "name_input_inactive_bg": pygame.Color(0x11,0x11,0x11, 255),
+    "name_input_cursor": pygame.Color(0xff, 0xff, 0xff, 255),
+}
+
+# bright theme
+CLASSY_THEME = {
+    # We've stoppped using color names here and rely on the theme.
+    # saving this for later. 
+    "shadow_color": pygame.Color(0x00, 0x00, 0x00, 255),
+
+    "player_score_fg": pygame.Color(0xff, 0xff, 0xff, 255),
+    "player_name_fg": pygame.Color(0xff, 0xff, 0xff, 255),
+    "player_area_bg": pygame.Color("#1d3557"),
+
+    # these colors shown when player buzzed in
+    "buzzed_in_message_fg": pygame.Color(0xff, 0xff, 0xff, 255),
+    "buzzed_in_bg": pygame.Color(0xfb, 0x56, 0x07, 255),
+    "buzzed_in_fg": pygame.Color(0, 0, 0),
+
+    # center text fb5607
+    "clock_text": pygame.Color("#ced4da"),
+    "state_text": pygame.Color("#e9ecef"),
+    "title_text": pygame.Color("#e9ecef"),
+
+    # lines around scores
+    "separator": pygame.Color("#ced4da"),
+
+    # used to draw radial background
+    "bg_one": pygame.Color("#457b9d"),
+    "bg_two": pygame.Color("#1d3557"),
+
+    # help
+    "help_title": pygame.Color(0xfc, 0x79, 0x65, 255),
+    "help_fg": pygame.Color(0xff, 0xff, 0xff, 255),
+    "help_bg": pygame.Color(0x22,0x22,0x22, 255),
+    "help_border": pygame.Color(0xdd, 0x00, 0x00, 255),
+
+    # name input box
+    "name_input_modal_fg": pygame.Color(0xff, 0xff, 0xff, 255),
+    "name_input_modal_bg": pygame.Color(210,0,100),
+    "name_input_active_fg": pygame.Color(0xff, 0xbe, 0x0b, 255),
+    "name_input_active_bg": pygame.Color(0x22,0x22,0x22, 255),
+    "name_input_inactive_fg": pygame.Color(0xaa, 0xaa, 0x00, 255),
+    "name_input_inactive_bg": pygame.Color(0x11,0x11,0x11, 255),
+    "name_input_cursor": pygame.Color(0xff, 0xff, 0xff, 255),
+}
+
 # select a theme here
-THEME_COLORS=DT_THEME
+THEME_COLORS=CLASSY_THEME

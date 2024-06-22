@@ -441,20 +441,21 @@ def draw_title(context):
 
     if context.invert_display:
         # logo left and right on bottom
-        context.screen.blit(
-            resized_img,
-            (
-                line_padding,
-                context.screenInfo.current_h - resized_img.get_height() - line_padding,
-            ),
-        )
-        context.screen.blit(
-            resized_img,
-            (
-                context.screenInfo.current_w - resized_img.get_width() - line_padding,
-                context.screenInfo.current_h - resized_img.get_height() - line_padding,
-            ),
-        )
+        if config.DRAW_LOGO:
+            context.screen.blit(
+                resized_img,
+                (
+                    line_padding,
+                    context.screenInfo.current_h - resized_img.get_height() - line_padding,
+                ),
+            )
+            context.screen.blit(
+                resized_img,
+                (
+                    context.screenInfo.current_w - resized_img.get_width() - line_padding,
+                    context.screenInfo.current_h - resized_img.get_height() - line_padding,
+                ),
+            )
         # title
         ptext.draw(
             config.TITLE,
@@ -469,14 +470,15 @@ def draw_title(context):
         )
     else:
         # logo left and right on top
-        context.screen.blit(resized_img, (line_padding, line_padding))
-        context.screen.blit(
-            resized_img,
-            (   
-                context.screenInfo.current_w - resized_img.get_width() - line_padding,
-                line_padding,
-            ),
-        )
+        if config.DRAW_LOGO:
+            context.screen.blit(resized_img, (line_padding, line_padding))
+            context.screen.blit(
+                resized_img,
+                (   
+                    context.screenInfo.current_w - resized_img.get_width() - line_padding,
+                    line_padding,
+                ),
+            )
 
         ptext.draw(
             config.TITLE,
@@ -655,7 +657,7 @@ def draw_state(context):
         statestr,
         centerx=context.screenInfo.current_w / 2,
         centery=message_y,
-        color="purple",
+        color=config.THEME_COLORS["state_text"],
         fontname="fonts/RobotoCondensed-Bold.ttf",
         fontsize=90,
         shadow=(1,1),
@@ -672,19 +674,23 @@ def draw_clock(context):
     minutes = math.floor(context.clock / 60000)
     sec = int((context.clock - (minutes * 60000)) / 1000)
 
+    draw_state(context)
+
+    if config.CLOCK_ENABLED == False:
+        return
+
     # draw clock
     ptext.draw(
         f"{minutes:d}:{sec:02d}",
         centerx=context.screenInfo.current_w / 2,
         centery=context.screenInfo.current_h / 3 + 100,
-        color="pink",
+        color=config.THEME_COLORS["clock_text"],
         fontname="fonts/RobotoCondensed-Bold.ttf",
         fontsize=200,
         shadow=(1,1),
         scolor="black"
     )
 
-    draw_state(context)
 
 
 def draw_gamestate(context):
@@ -813,22 +819,23 @@ def handle_clock_event(context):
     """
     if context.clock > 0:
         if context.state == GameState.RUNNING:
-            context.clock = context.clock - config.CLOCK_STEP
-            minutes = math.floor(context.clock / 60000)
-            sec = int((context.clock - (minutes * 60000)) / 1000)
+            if config.CLOCK_ENABLED:
+                context.clock = context.clock - config.CLOCK_STEP
+                minutes = math.floor(context.clock / 60000)
+                sec = int((context.clock - (minutes * 60000)) / 1000)
 
-            if context.prev_sec != sec:
-                context.prev_sec = sec
-                if context.prev_sec <= 4:
-                    context.sound.play("BEEP")
+                if context.prev_sec != sec:
+                    context.prev_sec = sec
+                    if context.prev_sec <= 4:
+                        context.sound.play("BEEP")
 
-            # handle timeout
-            if context.clock == 0:
-                # play sound
-                set_all_leds(context, True)
+                # handle timeout
+                if context.clock == 0:
+                    # play sound
+                    set_all_leds(context, True)
 
-                context.sound.play("TIMESUP")
-                context.state = GameState.TIMEUP
+                    context.sound.play("TIMESUP")
+                    context.state = GameState.TIMEUP
 
     if context.state == GameState.IDLE:
         # in idle state, walk the LEDs.
