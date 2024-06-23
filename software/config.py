@@ -53,9 +53,9 @@ GPIO_LED_MAP = [20, 21, 22, 23]
 PLATFORM = "pcserial"  # Running on a computer with a serial connection to GPIO board (rev4)
 
 # Serial port device name (if using serial)
-#SERIAL_DEVICE = "/dev/cu.usbserial-21320"
+SERIAL_DEVICE = "/dev/cu.usbserial-21320"
 #SERIAL_DEVICE = "/dev/cu.usbserial-120"
-SERIAL_DEVICE = "/dev/cu.usbserial-2120"
+#SERIAL_DEVICE = "/dev/cu.usbserial-2120"
 
 # What screen do we run the game on?
 DISPLAY_STYLE = "fullscreen"  # windowed, borderless, or fullscreen
@@ -64,7 +64,7 @@ DISPLAY_STYLE = "fullscreen"  # windowed, borderless, or fullscreen
 # Anything smaller breaks layout.
 DISPLAY_WINDOW_HEIGHT = 1920
 DISPLAY_WINDOW_WIDTH = 1080
-DISPLAY_ID = 0
+DISPLAY_ID = 1
 
 # Should we render the background and animate it?
 RENDER_BACKGROUND=True

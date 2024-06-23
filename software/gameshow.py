@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 """
 The Dirty Talk Game Show
 A four player game show buzzer system with a large clock and score display.
@@ -461,10 +462,10 @@ def draw_title(context):
             config.TITLE,
             centerx=context.screenInfo.current_w / 2,
             # 35 here is a guess, given the font is 80 pixels(?) high
-            centery=context.screenInfo.current_h - (resized_img.get_height() / 2) - line_padding + 35,
+            centery=context.screenInfo.current_h - (resized_img.get_height() / 2) - line_padding,
             color=config.THEME_COLORS["title_text"],
             fontname="fonts/RobotoCondensed-Bold.ttf",
-            fontsize=80,
+            fontsize=70,
             shadow=(1,1),
             scolor="black"
         )
@@ -486,7 +487,7 @@ def draw_title(context):
             centery=line_padding + (resized_img.get_height() / 2),
             color=config.THEME_COLORS["title_text"],
             fontname="fonts/RobotoCondensed-Bold.ttf",
-            fontsize=80,
+            fontsize=70,
             shadow=(1,1),
             scolor="black"
         )
