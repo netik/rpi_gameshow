@@ -16,13 +16,13 @@ CLOCK_STEP = 1000  # mS
 PYGAME_CLOCKEVENT = pygame.USEREVENT + 1
 
 # which directory to look in for sounds.
-SOUND_SET_DIR = "sounds/chimes/wav"
+SOUND_SET_DIR = "sounds/trek/wav"
 
 # the extension of the sound files. all other files will be ignored
 SOUND_EXT = ".wav"
 
 # should we play a unique sound per player?
-UNIQUE_PLAYER_SOUNDS = True
+UNIQUE_PLAYER_SOUNDS = False
 
 # main title on all screens
 TITLE = "The Dirty Talk Game Show"
@@ -48,18 +48,18 @@ GPIO_LED_MAP = [20, 21, 22, 23]
 PLATFORM = "pcserial"  # Running on a computer with a serial connection to GPIO board (rev4)
 
 # Serial port device name (if using serial)
-#SERIAL_DEVICE = "/dev/cu.usbserial-21320"
+SERIAL_DEVICE = "/dev/cu.usbserial-21320"
 #SERIAL_DEVICE = "/dev/cu.usbserial-120"
-SERIAL_DEVICE = "/dev/cu.usbserial-2120"
+#SERIAL_DEVICE = "/dev/cu.usbserial-2120"
 
 # What screen do we run the game on?
-DISPLAY_STYLE = "windowed"  # windowed, borderless, or fullscreen
+DISPLAY_STYLE = "fullscreen"  # windowed, borderless, or fullscreen
 
 # right now our minimum is 1080p HDTV @ 1920x1080. 
 # Anything smaller breaks layout.
 DISPLAY_WINDOW_HEIGHT = 1920
 DISPLAY_WINDOW_WIDTH = 1080
-DISPLAY_ID = 0
+DISPLAY_ID = 1
 
 # Should we render the background and animate it?
 RENDER_BACKGROUND=True
