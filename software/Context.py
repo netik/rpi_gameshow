@@ -43,7 +43,11 @@ class Context:
 
         # game state
         self.player_buzzed_in = -1
-        self.state = GameState.IDLE
+        
+        if config.CLOCK_ENABLED:
+            self.state = GameState.IDLE
+        else:
+            self.state = GameState.RUNNING
 
         # screen
         self.screen = None
