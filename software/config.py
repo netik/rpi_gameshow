@@ -26,12 +26,12 @@ SOUND_EXT = ".wav"
 UNIQUE_PLAYER_SOUNDS = False
 
 # Branding
-TITLE = "Trivia Show"
+TITLE = "Dirty Talk Game Show"
 DRAW_LOGO = True
-#LOGO = "images/dirtytalk-logo-nobg.png"
-#SPLASH = "images/dirtytalk-logo-nobg.png"
-LOGO = "images/cupcake.png"
-SPLASH = "images/cake.png"
+LOGO = "images/dirtytalk-logo-nobg.png"
+SPLASH = "images/dirtytalk-logo-nobg.png"
+#LOGO = "images/cupcake.png"
+#SPLASH = "images/cake.png"
 LOGO_RESIZE_FACTOR = 0.5
 
 # save file name
@@ -53,7 +53,8 @@ GPIO_LED_MAP = [20, 21, 22, 23]
 PLATFORM = "pcserial"  # Running on a computer with a serial connection to GPIO board (rev4)
 
 # Serial port device name (if using serial)
-SERIAL_DEVICE = "/dev/cu.usbserial-21320"
+#SERIAL_DEVICE = "/dev/cu.usbserial-21320"
+SERIAL_DEVICE = "/dev/cu.usbserial-1320"
 #SERIAL_DEVICE = "/dev/cu.usbserial-120"
 #SERIAL_DEVICE = "/dev/cu.usbserial-2120"
 
@@ -67,7 +68,7 @@ DISPLAY_WINDOW_WIDTH = 1080
 DISPLAY_ID = 1
 
 # Should we render the background and animate it?
-RENDER_BACKGROUND=True
+RENDER_BACKGROUND=False
 
 # Should we render the LED state on the screen
 DEBUG_LEDS=False
