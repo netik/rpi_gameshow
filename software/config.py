@@ -3,6 +3,7 @@ Game configuration
 """
 
 import pygame
+import glob
 
 # the number of players in the game
 PLAYERS = 4
@@ -53,10 +54,15 @@ GPIO_LED_MAP = [20, 21, 22, 23]
 PLATFORM = "pcserial"  # Running on a computer with a serial connection to GPIO board (rev4)
 
 # Serial port device name (if using serial)
-#SERIAL_DEVICE = "/dev/cu.usbserial-21320"
-SERIAL_DEVICE = "/dev/cu.usbserial-1320"
-#SERIAL_DEVICE = "/dev/cu.usbserial-120"
-#SERIAL_DEVICE = "/dev/cu.usbserial-2120"
+# Find the first matching /dev/cu.* file
+serial_devices = glob.glob("/dev/cu.usbserial*")
+
+if serial_devices and PLATFORM == "pcserial":
+    SERIAL_DEVICE = serial_devices[0]
+else:
+    raise FileNotFoundError("No serial devices found in /dev/cu.*")
+
+print(f"SERIAL_DEVICE set to: {SERIAL_DEVICE}")
 
 # What screen do we run the game on?
 DISPLAY_STYLE = "fullscreen"  # windowed, borderless, or fullscreen
@@ -65,7 +71,7 @@ DISPLAY_STYLE = "fullscreen"  # windowed, borderless, or fullscreen
 # Anything smaller breaks layout.
 DISPLAY_WINDOW_HEIGHT = 1920
 DISPLAY_WINDOW_WIDTH = 1080
-DISPLAY_ID = 1
+DISPLAY_ID = 0
 
 # Should we render the background and animate it?
 RENDER_BACKGROUND=False
