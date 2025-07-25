@@ -50,19 +50,21 @@ GPIO_LED_MAP = [20, 21, 22, 23]
 # In any mode, 1-4 on the keypad can be used to simulate buzzers
 #
 # PLATFORM = "rpi"  # Running the entire game on a raspberry pi using the onboard GPIO
-#PLATFORM = "pc"  # Running the game in dev mode on a computer, no GPIO
-PLATFORM = "pcserial"  # Running on a computer with a serial connection to GPIO board (rev4)
+PLATFORM = "pc"  # Running the game in dev mode on a computer, no GPIO
+#PLATFORM = "pcserial"  # Running on a computer with a serial connection to GPIO board (rev4)
 
 # Serial port device name (if using serial)
 # Find the first matching /dev/cu.* file
 serial_devices = glob.glob("/dev/cu.usbserial*")
 
-if serial_devices and PLATFORM == "pcserial":
-    SERIAL_DEVICE = serial_devices[0]
-else:
-    raise FileNotFoundError("No serial devices found in /dev/cu.*")
+print(f"Gameshow is starting for platform {PLATFORM} with serial devices: {serial_devices}")
 
-print(f"SERIAL_DEVICE set to: {SERIAL_DEVICE}")
+if len(serial_devices) == 0 and PLATFORM == "pcserial":
+    raise FileNotFoundError("No serial devices found in /dev/cu.usbserial*")
+
+if PLATFORM == "pcserial":
+    SERIAL_DEVICE = serial_devices[0]
+    print(f"SERIAL_DEVICE set to: {SERIAL_DEVICE}")
 
 # What screen do we run the game on?
 DISPLAY_STYLE = "fullscreen"  # windowed, borderless, or fullscreen

@@ -1043,7 +1043,11 @@ def main():
     # I/O
     setup_gpio(context)
 
-    context.serial_port = setup_serial(context, config.SERIAL_DEVICE)
+    if config.PLATFORM == "pcserial":
+        context.serial_port = None
+        if config.SERIAL_DEVICE:
+            print("Setting up serial port %s" % config.SERIAL_DEVICE)
+        context.serial_port = setup_serial(context, config.SERIAL_DEVICE)
 
     init_game(context)
     render_all(context)
