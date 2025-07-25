@@ -1,21 +1,25 @@
 """
-GameState.py
+Game state enumeration for the game show application.
+
+This module defines the various states that the game can be in,
+which control the behavior and display of the game interface.
 """
+
 from enum import Enum
 
-# ENUMS to represent the game state
+
 class GameState(Enum):
     """
-    enum of possible game states
-
-    Args:
-        Enum (number): enum of possible game states
+    Enumeration of possible game states.
+    
+    The game can be in various states that control what is displayed
+    and how user input is handled.
     """
-    IDLE = 0
-    RUNNING = 1
-    BUZZIN = 2
-    TIMEUP = 3
-    INPUT = 4
-    SETUP = 100
-    SPLASH = 200
-    HELP = 300
+    IDLE = 0      # Game is idle, waiting to start
+    RUNNING = 1   # Game is actively running with timer
+    BUZZIN = 2    # A player has buzzed in
+    TIMEUP = 3    # Time has run out
+    INPUT = 4     # Waiting for text input
+    SETUP = 100   # In setup/configuration mode
+    SPLASH = 200  # Showing splash screen
+    HELP = 300    # Showing help screen

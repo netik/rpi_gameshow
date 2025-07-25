@@ -1,45 +1,73 @@
+"""
+Player name editor modal for the game show application.
+
+This module provides a modal dialog for editing player names during gameplay.
+It allows users to navigate between different player name fields and save
+changes to the game state.
+"""
+
 import pygame
 import ptext
-import pygame_textinput  # from https://github.com/Nearoo/pygame-text-input
+import pygame_textinput
 
 import config
 from GameState import GameState
+from Context import Context
 from drawutil import drawtext
+
 
 class NameEditor:
     """
-    NameEditor is a modal that allows the user to edit the player names.
-    """
-    input_height = None
-    input_font_size = 60
-    input_spacing = None # will compute after font loaded
-    inputs_offset = 150  # offset from top of modal where inputs begin
-    label_offset = 100  # offset from top of modal where labels begin
+    Modal dialog for editing player names.
     
-    def __init__(self, context):
+    This class provides a user interface for editing the names of all players
+    in the game. It supports keyboard navigation between fields and saves
+    changes to the game state.
+    """
+    
+    # Class-level constants
+    INPUT_FONT_SIZE: int = 60
+    INPUTS_OFFSET: int = 150  # Offset from top of modal where inputs begin
+    LABEL_OFFSET: int = 100   # Offset from top of modal where labels begin
+    
+    def __init__(self, context: Context) -> None:
+        """
+        Initialize the name editor modal.
+        
+        Args:
+            context: Game context containing screen and player data
+        """
         self.context = context
         self.width = context.screenInfo.current_w * 0.15  # 85% total
         self.height = context.screenInfo.current_h * 0.10  # 75% total
         
-        # setup fonts
-        self.context.load_font("namefont", "RobotoCondensed-Bold.ttf", self.input_font_size)    
+        # Setup fonts
+        self.context.load_font("namefont", "RobotoCondensed-Bold.ttf", self.INPUT_FONT_SIZE)    
 
         self.input_height = context.fonts["namefont"].get_height()
-        self.input_spacing = self.input_height * 2  # spacing between inputs
+        self.input_spacing = self.input_height * 2  # Spacing between inputs
 
-    def draw_modal(self):
-        pass
+    def draw_modal(self) -> None:
+        """Draw the modal background and structure."""
+        # TODO: Implement modal drawing if needed
 
-    def run(self):
+    def run(self) -> None:
+        """
+        Run the name editor modal.
+        
+        This method handles the main interaction loop for editing player names.
+        It processes keyboard input, manages navigation between fields, and
+        saves changes to the game state.
+        """
         self.context.state = GameState.INPUT
 
-        # which name we are editing
+        # Which name we are editing (0-3 for 4 players)
         editing = 0
 
-        # draw a modal box at 85% of the screen. Stop the clock.
+        # Draw a modal box at 85% of the screen. Stop the clock.
         self.context.state = GameState.SETUP
 
-        # inside modal
+        # Inside modal
         pygame.draw.rect(
             self.context.screen,
             (60, 60, 60),
@@ -51,7 +79,7 @@ class NameEditor:
             ),
         )
 
-        # outside edge
+        # Outside edge
         pygame.draw.rect(
             self.context.screen,
             (210, 0, 100),
@@ -63,7 +91,7 @@ class NameEditor:
             ),
         )
 
-        # start a bit inset in the modal
+        # Start a bit inset in the modal
         xpos = self.width + 60
 
         # Center the title
@@ -72,54 +100,57 @@ class NameEditor:
             centerx=self.context.screenInfo.current_w / 2,
             centery=self.height + self.input_height - 10,
             fontname="fonts/RobotoCondensed-Bold.ttf",
-            fontsize=self.input_font_size - 20
+            fontsize=self.INPUT_FONT_SIZE - 20
         )
 
         for i in range(0, config.PLAYERS):
-            # input box - grey until edit is active
+            # Input box - grey until edit is active
             pygame.draw.rect(
                 self.context.screen,
                 config.THEME_COLORS["name_input_inactive_bg"],
                 (
                     xpos - 4,
-                    self.height + self.inputs_offset + (i * self.input_spacing),
+                    self.height + self.INPUTS_OFFSET + (i * self.input_spacing),
                     self.context.screenInfo.current_w - (self.width * 2) - 120,
                     self.input_height,
                 ),
             )
 
-            # input label
+            # Input label
             drawtext(
                 self.context,
                 "robo36",
                 f"Player {(i+1)}",
                 xpos,
-                self.height + self.label_offset + (i * self.input_spacing),
+                self.height + self.LABEL_OFFSET + (i * self.input_spacing),
                 config.THEME_COLORS["name_input_modal_fg"],
                 config.THEME_COLORS["name_input_modal_bg"],
             )
 
-            # player name
+            # Player name
             drawtext(
                 self.context,
                 "namefont",
                 self.context.player_names[i],
                 xpos,
-                self.height + self.inputs_offset + (i * self.input_spacing),
+                self.height + self.INPUTS_OFFSET + (i * self.input_spacing),
                 config.THEME_COLORS["name_input_inactive_fg"],
                 config.THEME_COLORS["name_input_inactive_bg"]
             )
 
-        # this manager allows 10 char names
+        # This manager allows 10 char names
         limit_10 = lambda x: len(x) <= 10  
         textmanager = pygame_textinput.TextInputManager(validator=limit_10)
-        make_textinput = lambda: pygame_textinput.TextInputVisualizer(
-            manager=textmanager,
-            font_color=config.THEME_COLORS["name_input_active_fg"],
-            cursor_color=config.THEME_COLORS["name_input_cursor"],
-            cursor_blink_interval=500,
-            font_object=self.context.fonts["namefont"],
-        )
+        
+        def make_textinput() -> pygame_textinput.TextInputVisualizer:
+            """Create a new text input visualizer with current settings."""
+            return pygame_textinput.TextInputVisualizer(
+                manager=textmanager,
+                font_color=config.THEME_COLORS["name_input_active_fg"],
+                cursor_color=config.THEME_COLORS["name_input_cursor"],
+                cursor_blink_interval=500,
+                font_object=self.context.fonts["namefont"],
+            )
 
         textinput = make_textinput()
 
@@ -130,20 +161,20 @@ class NameEditor:
         clock = pygame.time.Clock()
         
         while True:
-
-            # clear the text input box, make it grey and put the text back.
+            # Clear the text input box, make it grey and put the text back.
             pygame.draw.rect(
                 self.context.screen,
                 config.THEME_COLORS["name_input_active_bg"],
                 (
                     xpos - 4,
-                    self.height + self.inputs_offset + (editing * self.input_spacing),
+                    self.height + self.INPUTS_OFFSET + (editing * self.input_spacing),
                     self.context.screenInfo.current_w - (self.width * 2) - 120,
                     self.input_height
                 )
             )
+            
             events = pygame.event.get()
-            # pass all of the events to textinput for input handling
+            # Pass all of the events to textinput for input handling
             textinput.update(events)
 
             # See if we care about any of the events that just fired
@@ -165,17 +196,17 @@ class NameEditor:
                     event.key
                     in (pygame.K_UP, pygame.K_DOWN, pygame.K_RETURN, pygame.K_TAB)
                 ):
-                    # store the old data
+                    # Store the old data
                     self.context.player_names[editing] = textinput.value.strip()
                     self.context.save()
 
-                    # clear the text input box, make it grey and put the text back.
+                    # Clear the text input box, make it grey and put the text back.
                     pygame.draw.rect(
                         self.context.screen,
                         config.THEME_COLORS["name_input_inactive_bg"],
                         (
                             xpos - 4,
-                            self.height + self.inputs_offset + (editing * self.input_spacing),
+                            self.height + self.INPUTS_OFFSET + (editing * self.input_spacing),
                             self.context.screenInfo.current_w - (self.width * 2) - 120,
                             self.input_height
                         )
@@ -186,12 +217,12 @@ class NameEditor:
                         "namefont",
                         self.context.player_names[editing],
                         xpos,
-                        self.height + self.inputs_offset + (editing * self.input_spacing),
+                        self.height + self.INPUTS_OFFSET + (editing * self.input_spacing),
                         config.THEME_COLORS["name_input_inactive_fg"],
                         config.THEME_COLORS["name_input_inactive_bg"]
                     )
 
-                    # move to the next row or go up if requested
+                    # Move to the next row or go up if requested
                     if event.key == pygame.K_UP:
                         self.context.player_names[editing] = textinput.value.strip()
                         editing = editing - 1
@@ -200,40 +231,40 @@ class NameEditor:
                         self.context.player_names[editing] = textinput.value.strip()
                         editing = editing + 1
 
+                    # Wrap around player indices
                     if editing > 3:
                         editing = 0
 
                     if editing < 0:
                         editing = 3
 
-                    # get us a new object for this row
+                    # Get us a new object for this row
                     del textinput
-
                     textinput = make_textinput()
 
                     textinput.value = self.context.player_names[editing]
                     textmanager.cursor_pos = len(self.context.player_names[editing])
 
-                    # break so we don't overprocess events
+                    # Break so we don't overprocess events
                     break
 
-                # clear the region
+                # Clear the region
                 pygame.draw.rect(
                     self.context.screen,
                     (30, 30, 30),
                     (
                         xpos-4,
-                        self.height + self.inputs_offset + (editing * self.input_spacing),
+                        self.height + self.INPUTS_OFFSET + (editing * self.input_spacing),
                         self.context.screenInfo.current_w - (self.width * 2) - 120,
                         self.input_height,
                     ),
                 )
 
             # Blit its surface onto the screen
-            # thre is a slight problem here that the text drawing is off?
+            # There is a slight problem here that the text drawing is off?
             self.context.screen.blit(
                 textinput.surface,
-                (xpos, self.height + self.inputs_offset + (editing * self.input_spacing)),
+                (xpos, self.height + self.INPUTS_OFFSET + (editing * self.input_spacing)),
             )
 
             clock.tick(30)
