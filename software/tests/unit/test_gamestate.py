@@ -2,7 +2,6 @@
 Unit tests for GameState enum.
 """
 
-import pytest
 from GameState import GameState
 
 
@@ -11,14 +10,14 @@ class TestGameState:
     
     def test_game_state_values(self):
         """Test that GameState enum has expected values."""
-        assert GameState.IDLE == 0
-        assert GameState.RUNNING == 1
-        assert GameState.BUZZIN == 2
-        assert GameState.TIMEUP == 3
-        assert GameState.INPUT == 4
-        assert GameState.SETUP == 100
-        assert GameState.SPLASH == 200
-        assert GameState.HELP == 300
+        assert GameState.IDLE.value == 0
+        assert GameState.RUNNING.value == 1
+        assert GameState.BUZZIN.value == 2
+        assert GameState.TIMEUP.value == 3
+        assert GameState.INPUT.value == 4
+        assert GameState.SETUP.value == 100
+        assert GameState.SPLASH.value == 200
+        assert GameState.HELP.value == 300
     
     def test_game_state_names(self):
         """Test that GameState enum has expected names."""
@@ -33,13 +32,19 @@ class TestGameState:
     
     def test_game_state_comparison(self):
         """Test GameState enum comparison operations."""
-        assert GameState.IDLE < GameState.RUNNING
-        assert GameState.RUNNING < GameState.BUZZIN
-        assert GameState.BUZZIN < GameState.TIMEUP
-        assert GameState.TIMEUP < GameState.INPUT
-        assert GameState.INPUT < GameState.SETUP
-        assert GameState.SETUP < GameState.SPLASH
-        assert GameState.SPLASH < GameState.HELP
+        # Test value comparison
+        assert GameState.IDLE.value < GameState.RUNNING.value
+        assert GameState.RUNNING.value < GameState.BUZZIN.value
+        assert GameState.BUZZIN.value < GameState.TIMEUP.value
+        assert GameState.TIMEUP.value < GameState.INPUT.value
+        assert GameState.INPUT.value < GameState.SETUP.value
+        assert GameState.SETUP.value < GameState.SPLASH.value
+        assert GameState.SPLASH.value < GameState.HELP.value
+        
+        # Test enum comparison using values
+        assert GameState.IDLE.value < GameState.RUNNING.value
+        assert GameState.RUNNING.value > GameState.IDLE.value
+        assert GameState.IDLE.value == GameState.IDLE.value
     
     def test_game_state_iteration(self):
         """Test that GameState enum can be iterated."""
@@ -52,4 +57,9 @@ class TestGameState:
         assert GameState.INPUT in states
         assert GameState.SETUP in states
         assert GameState.SPLASH in states
-        assert GameState.HELP in states 
+        assert GameState.HELP in states
+    
+    def test_game_state_string_representation(self):
+        """Test GameState enum string representation."""
+        assert str(GameState.IDLE) == "GameState.IDLE"
+        assert repr(GameState.RUNNING) == "<GameState.RUNNING: 1>" 

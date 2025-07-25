@@ -52,17 +52,30 @@ def main():
         default=1,
         help="Number of parallel processes"
     )
+    parser.add_argument(
+        "--no-cov",
+        action="store_true",
+        help="Disable coverage reporting (useful when coverage is enabled by default)"
+    )
     
     args = parser.parse_args()
     
-    # Base pytest command
-    base_cmd = ["python", "-m", "pytest"]
+    # Base pytest command using the current Python executable
+    base_cmd = [sys.executable, "-m", "pytest"]
     
     if args.verbose:
         base_cmd.append("-v")
     
-    if args.coverage:
-        base_cmd.extend(["--cov=.", "--cov-report=html", "--cov-report=term-missing"])
+    # Handle coverage options
+    if args.coverage and not args.no_cov:
+        base_cmd.extend([
+            "--cov=.",
+            "--cov-report=html",
+            "--cov-report=term-missing"
+        ])
+    elif args.no_cov:
+        # Explicitly disable coverage if requested
+        base_cmd.extend(["--no-cov"])
     
     if args.parallel > 1:
         base_cmd.extend(["-n", str(args.parallel)])
@@ -80,8 +93,9 @@ def main():
     
     if success:
         print(f"\n🎉 All {args.type} tests passed!")
-        if args.coverage:
+        if args.coverage and not args.no_cov:
             print("📊 Coverage report generated in htmlcov/")
+            print("   Open htmlcov/index.html to view the report")
     else:
         print(f"\n💥 Some {args.type} tests failed!")
         sys.exit(1)

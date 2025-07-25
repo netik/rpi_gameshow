@@ -13,13 +13,17 @@ import config
 class TestGameFlow:
     """Test cases for game flow and state transitions."""
     
-    def test_game_initialization_flow(self):
+    @patch('Context.Sound')
+    def test_game_initialization_flow(self, mock_sound_class):
         """Test complete game initialization flow."""
         with patch('pygame.time.Clock'), \
-             patch('Sound.Sound'), \
              patch('pygame.sprite.Group'), \
              patch('pygame.display.set_mode') as mock_display, \
              patch('pygame.init'):
+            
+            # Mock Sound class to avoid file loading
+            mock_sound_instance = Mock()
+            mock_sound_class.return_value = mock_sound_instance
             
             # Mock screen
             mock_screen = Mock()
@@ -37,11 +41,15 @@ class TestGameFlow:
             assert context.player_buzzed_in == -1
             assert all(not led for led in context.led_state)
     
-    def test_game_reset_flow(self):
+    @patch('Context.Sound')
+    def test_game_reset_flow(self, mock_sound_class):
         """Test game reset flow."""
         with patch('pygame.time.Clock'), \
-             patch('Sound.Sound'), \
              patch('pygame.sprite.Group'):
+            
+            # Mock Sound class to avoid file loading
+            mock_sound_instance = Mock()
+            mock_sound_class.return_value = mock_sound_instance
             
             context = Context()
             
@@ -63,11 +71,15 @@ class TestGameFlow:
             # LED state should remain unchanged (not part of reset)
             assert context.led_state == [True, False, True, False]
     
-    def test_clock_reset_flow(self):
+    @patch('Context.Sound')
+    def test_clock_reset_flow(self, mock_sound_class):
         """Test clock reset flow."""
         with patch('pygame.time.Clock'), \
-             patch('Sound.Sound'), \
              patch('pygame.sprite.Group'):
+            
+            # Mock Sound class to avoid file loading
+            mock_sound_instance = Mock()
+            mock_sound_class.return_value = mock_sound_instance
             
             context = Context()
             
@@ -86,12 +98,16 @@ class TestGameFlow:
             assert context.state == GameState.IDLE
             assert context.player_buzzed_in == -1
     
-    def test_state_persistence_flow(self):
+    @patch('Context.Sound')
+    def test_state_persistence_flow(self, mock_sound_class):
         """Test state save and restore flow."""
         with patch('pygame.time.Clock'), \
-             patch('Sound.Sound'), \
              patch('pygame.sprite.Group'), \
              patch('config.STATE_FILE_NAME', 'test_gamestate.pickle'):
+            
+            # Mock Sound class to avoid file loading
+            mock_sound_instance = Mock()
+            mock_sound_class.return_value = mock_sound_instance
             
             context = Context()
             
@@ -112,13 +128,17 @@ class TestGameFlow:
             assert new_context.scores == [10, 20, 30, 40]
             assert new_context.invert_display is False
     
-    def test_font_loading_flow(self):
+    @patch('Context.Sound')
+    def test_font_loading_flow(self, mock_sound_class):
         """Test font loading flow."""
         with patch('pygame.time.Clock'), \
-             patch('Sound.Sound'), \
              patch('pygame.sprite.Group'), \
              patch('pygame.font.Font') as mock_font, \
              patch('os.path.join') as mock_join:
+            
+            # Mock Sound class to avoid file loading
+            mock_sound_instance = Mock()
+            mock_sound_class.return_value = mock_sound_instance
             
             context = Context()
             
@@ -135,11 +155,15 @@ class TestGameFlow:
             assert context.fonts["testfont"] == mock_font_instance
             mock_font.assert_called_once_with("fonts/test.ttf", 24)
     
-    def test_player_management_flow(self):
+    @patch('Context.Sound')
+    def test_player_management_flow(self, mock_sound_class):
         """Test player management flow."""
         with patch('pygame.time.Clock'), \
-             patch('Sound.Sound'), \
              patch('pygame.sprite.Group'):
+            
+            # Mock Sound class to avoid file loading
+            mock_sound_instance = Mock()
+            mock_sound_class.return_value = mock_sound_instance
             
             context = Context()
             
@@ -160,11 +184,15 @@ class TestGameFlow:
             context.led_state[2] = True
             assert context.led_state[2] is True
     
-    def test_game_state_transitions(self):
+    @patch('Context.Sound')
+    def test_game_state_transitions(self, mock_sound_class):
         """Test game state transition flow."""
         with patch('pygame.time.Clock'), \
-             patch('Sound.Sound'), \
              patch('pygame.sprite.Group'):
+            
+            # Mock Sound class to avoid file loading
+            mock_sound_instance = Mock()
+            mock_sound_class.return_value = mock_sound_instance
             
             context = Context()
             
@@ -184,11 +212,15 @@ class TestGameFlow:
             context.state = GameState.IDLE
             assert context.state == GameState.IDLE
     
-    def test_buzzer_management_flow(self):
+    @patch('Context.Sound')
+    def test_buzzer_management_flow(self, mock_sound_class):
         """Test buzzer management flow."""
         with patch('pygame.time.Clock'), \
-             patch('Sound.Sound'), \
              patch('pygame.sprite.Group'):
+            
+            # Mock Sound class to avoid file loading
+            mock_sound_instance = Mock()
+            mock_sound_class.return_value = mock_sound_instance
             
             context = Context()
             
