@@ -82,7 +82,7 @@ if PLATFORM == "pcserial":
 # =============================================================================
 
 # Display mode: "windowed", "borderless", or "fullscreen"
-DISPLAY_STYLE: str = "fullscreen"
+DISPLAY_STYLE: str = "windowed"
 
 # Display dimensions (minimum 1080p HDTV @ 1920x1080)
 DISPLAY_WINDOW_HEIGHT: int = 1920

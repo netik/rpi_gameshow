@@ -29,6 +29,7 @@ class Context:
         self.colors: Dict[str, Any] = {}
         self.sound_library: Dict[str, Any] = {}
         self.screen: Optional[pygame.Surface] = None
+        self.screenInfo: Optional[pygame.display.Info] = None
         self.scores: List[int] = [0 for _ in range(config.PLAYERS)]
         self.led_state: List[bool] = [False for _ in range(config.PLAYERS)]
         self.player_names: List[str] = [f"Player {i+1}" for i in range(config.PLAYERS)]

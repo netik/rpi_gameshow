@@ -38,6 +38,11 @@ class NameEditor:
             context: Game context containing screen and player data
         """
         self.context = context
+        
+        # Ensure screenInfo is initialized
+        if self.context.screenInfo is None:
+            self.context.screenInfo = pygame.display.Info()
+            
         self.width = context.screenInfo.current_w * 0.15  # 85% total
         self.height = context.screenInfo.current_h * 0.10  # 75% total
         
@@ -261,7 +266,7 @@ class NameEditor:
                 )
 
             # Blit its surface onto the screen
-            # There is a slight problem here that the text drawing is off?
+            # Use the original positioning to maintain compatibility
             self.context.screen.blit(
                 textinput.surface,
                 (xpos, self.height + self.INPUTS_OFFSET + (editing * self.input_spacing)),
