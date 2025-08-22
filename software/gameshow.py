@@ -82,11 +82,11 @@ def draw_leds(context):
     """
     draws all LEDs on the screen for debugging
     """
-    if config.DEBUG_LEDS == False:
+    if config.DEBUG_LEDS is False:
         return
 
     xpos = 20
-    ypos = 250
+    ypos = 300
     drawtext(
         context, "robo36", "(debug) LEDs:", xpos, ypos - 50, (255, 255, 255), (0, 0, 0)
     )
@@ -602,7 +602,7 @@ def draw_help(context):
                  ypos,             
                  config.THEME_COLORS["help_fg"],
                  config.THEME_COLORS["help_bg"])
-        
+
         drawtext(
             context,
             "robo24",
@@ -613,9 +613,9 @@ def draw_help(context):
             config.THEME_COLORS["help_bg"]
         )
         ypos = ypos + context.fonts["robo24"].get_height()
-    
+
     ypos = ypos + context.fonts["robo24"].get_height()
-    
+
     ptext.draw(
         "Hit any Key to continue",
         color=config.THEME_COLORS["help_title"],
@@ -766,7 +766,6 @@ def draw_particles(context):
     # update
     dt = context.pyclock.tick() / 1000
     context.particle_group.update(dt)
-    pygame.display.update()
 
 def render_all(context):
     """Render the entire screen"""
@@ -840,10 +839,11 @@ def handle_clock_event(context):
 
     if context.state == GameState.IDLE:
         # in idle state, walk the LEDs.
+        set_led(context, context.led_attract_cycle, True, True)
+
         context.led_attract_cycle += 1
         if context.led_attract_cycle > config.PLAYERS - 1:
             context.led_attract_cycle = 0
-        set_led(context, context.led_attract_cycle, True, True)
 
 
 def handle_keyboard_event(context, event):
@@ -1029,7 +1029,6 @@ def event_loop(context):
         # no rendering should happen before this line.
         render_all(context)
        
-        pygame.display.flip() 
         context.pyclock.tick(config.FPS)
 
 

@@ -17,6 +17,15 @@ export PLATFORM=pc
 export DEBUG_LEDS=true
 ```
 
+### .env file
+
+Normally the code runs in development mode. To override this mode, you can add a .env file to force production, containng:
+
+```bash
+ENV_FOR_DYNACONF='production'
+```
+
+
 ## Key Benefits
 
 1. **Environment-Specific Configuration**: Different settings for development, testing, and production
