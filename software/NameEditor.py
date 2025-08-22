@@ -10,7 +10,7 @@ import pygame
 import ptext
 import pygame_textinput
 
-import config
+import game_config as config
 from GameState import GameState
 from Context import Context
 from drawutil import drawtext

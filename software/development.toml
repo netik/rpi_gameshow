@@ -1,0 +1,8 @@
+# Development environment overrides
+# This file contains development-specific configuration
+
+PLATFORM = "pc"
+DEBUG_LEDS = true
+RENDER_BACKGROUND = true
+DISPLAY_STYLE = "windowed"
+

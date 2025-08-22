@@ -1,4 +1,5 @@
 # app files
+settings.toml
 gamestate.pickle
 
 # Byte-compiled / optimized / DLL files

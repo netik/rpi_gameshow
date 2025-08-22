@@ -7,7 +7,7 @@ import pytest
 
 from Context import Context
 from GameState import GameState
-import config
+import game_config as config
 
 
 class TestGameFlow:

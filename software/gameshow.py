@@ -17,7 +17,7 @@ import serial
 import pygame
 import pygame.gfxdraw
 import ptext
-import config
+import game_config as config
 
 from particleutil import spawn_exploding_particles
 

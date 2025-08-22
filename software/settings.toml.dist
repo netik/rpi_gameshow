@@ -1,0 +1,98 @@
+[default]
+# =============================================================================
+# Game Settings
+# =============================================================================
+
+# Number of players in the game
+PLAYERS = 4
+
+# Frames per second for the game loop
+FPS = 60
+
+# Clock settings
+CLOCK_ENABLED = true   # If false, the clock will not run or display
+MAX_CLOCK = 60000      # Maximum clock time in milliseconds
+CLOCK_STEP = 1000      # Clock update interval in milliseconds
+PYGAME_CLOCKEVENT = 25 # pygame.USEREVENT + 1
+
+# =============================================================================
+# Sound Settings
+# =============================================================================
+
+# Directory containing sound files
+SOUND_SET_DIR = "sounds/trek/wav"
+
+# File extension for sound files (all other files will be ignored)
+SOUND_EXT = ".wav"
+
+# Whether to play unique sounds for each player
+UNIQUE_PLAYER_SOUNDS = false
+
+# =============================================================================
+# Branding and Assets
+# =============================================================================
+
+TITLE = "Dirty Talk Game Show"
+DRAW_LOGO = true
+LOGO = "images/dirtytalk-logo-nobg.png"
+SPLASH = "images/dirtytalk-logo-nobg.png"
+LOGO_RESIZE_FACTOR = 0.5
+
+# Save file for persistent game state
+STATE_FILE_NAME = "gamestate.pickle"
+
+# =============================================================================
+# Hardware Configuration
+# =============================================================================
+
+# GPIO Pin mappings for Raspberry Pi
+PLAYER_MAP = [16, 17, 18, 19]  # GPIO pins for player buttons
+GPIO_LED_MAP = [20, 21, 22, 23]  # GPIO pins for LED indicators
+
+# Platform configuration
+# Options: "rpi" (Raspberry Pi with GPIO), "pc" (development mode), "pcserial" (PC with serial)
+PLATFORM = "pcserial"
+
+# Serial port configuration (for pcserial mode)
+# SERIAL_DEVICE will be auto-detected at runtime
+
+# =============================================================================
+# Display Settings
+# =============================================================================
+
+# Display mode: "windowed", "borderless", or "fullscreen"
+DISPLAY_STYLE = "fullscreen"
+
+# Display dimensions (minimum 1080p HDTV @ 1920x1080)
+DISPLAY_WINDOW_HEIGHT = 1920
+DISPLAY_WINDOW_WIDTH = 1080
+DISPLAY_ID = 0
+
+# Rendering options
+RENDER_BACKGROUND = false  # Whether to render animated background
+DEBUG_LEDS = false         # Whether to show LED state on screen
+
+# =============================================================================
+# Theme Configuration
+# =============================================================================
+
+# Currently active theme (change this to switch themes)
+THEME_COLORS = "CLASSY_THEME"
+
+# =============================================================================
+# Development Overrides
+# =============================================================================
+
+[development]
+# Development-specific overrides
+PLATFORM = "pc"
+DEBUG_LEDS = true
+
+# =============================================================================
+# Production Overrides
+# =============================================================================
+
+[production]
+# Production-specific overrides
+PLATFORM = "pcserial"
+DEBUG_LEDS = false

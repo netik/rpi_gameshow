@@ -8,7 +8,7 @@ import os
 from unittest.mock import Mock, patch, MagicMock
 from Context import Context
 from GameState import GameState
-import config
+import game_config as config
 
 
 class TestContext:

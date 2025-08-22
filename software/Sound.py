@@ -9,7 +9,7 @@ import os
 import sys
 from typing import Dict
 import pygame
-import config
+import game_config as config
 
 # Required sound files that must be present
 REQUIRED_SOUNDS = ['BEEP', 'BUZZ', 'TIMESUP', 'PLAYER1', 'PLAYER2', 'PLAYER3', 'PLAYER4', 'INVALID']
