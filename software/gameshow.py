@@ -4,9 +4,21 @@
 The Dirty Talk Game Show
 A four player game show buzzer system with a large clock and score display.
 
+This module implements the main game logic for a game show buzzer system that supports
+multiple platforms (Raspberry Pi with GPIO, PC with serial, PC development mode).
+It handles player input, scoring, timing, sound effects, and visual rendering.
 
-J. Adams <jna@retina.net>
-2023
+Features:
+- 4-player buzzer system with LED indicators
+- Configurable countdown timer
+- Score tracking and display
+- Multiple display modes (windowed, borderless, fullscreen)
+- Theme support with customizable colors
+- Particle effects and animations
+- Cross-platform support (RPi GPIO, PC Serial, PC Development)
+
+Author: J. Adams <jna@retina.net>
+Date: 2023
 """
 
 import os
@@ -44,14 +56,22 @@ if config.PLATFORM == "rpi":
 
 def serial_send(context, cmd):
     """
-    Send a command to the serial port
+    Send a command to the serial port for hardware communication.
+    
+    This function sends commands to external hardware (like Arduino) via serial
+    communication when running in pcserial mode. It's used for controlling LEDs
+    and receiving button presses from external hardware.
 
     Args:
-        context (GameContext: current game context
-        cmd (str): the command
+        context (Context): Current game context containing serial port information
+        cmd (bytes): The command to send to the serial port
 
     Returns:
-        bool: True if sent, False if not
+        bool: True if command was sent successfully, False if not in pcserial mode
+
+    Note:
+        Only works when PLATFORM is set to "pcserial". In other modes,
+        this function returns False without sending anything.
     """
     if config.PLATFORM == "pcserial":
         context.serial_port.write(cmd)
@@ -66,8 +86,20 @@ def serial_send(context, cmd):
 
 def button_event(context, channel):
     """
-    Register a button press event, which we will handle this on the next clock
-    tick
+    Register a button press event from a player buzzer.
+    
+    This function is called when a player presses their buzzer button. It maps
+    the hardware channel (GPIO pin or serial input) to the correct player number
+    and stores the information for processing in the main game loop.
+
+    Args:
+        context (Context): Current game context containing player and LED state
+        channel (int): Hardware channel number (GPIO pin or serial input number)
+
+    Note:
+        - For GPIO mode: Maps channel to player using PLAYER_REVERSE_MAP
+        - For serial mode: Assumes 1:1 mapping (channel-1 = player index)
+        - The actual game state transition happens in the main event loop
     """
     # if it's serial it's a 1:1 map
     if context.serial_port and config.PLATFORM == "pcserial":
@@ -77,10 +109,23 @@ def button_event(context, channel):
     # if GPIO we have to map it back to the right player
     context.player_buzzed_in = config.PLAYER_REVERSE_MAP[channel]
 
-# display the LED state on the main screen for debugging
+
 def draw_leds(context):
     """
-    draws all LEDs on the screen for debugging
+    Draw debug LED indicators on screen for development and testing.
+    
+    This function renders visual representations of the physical LED states
+    on the screen when DEBUG_LEDS is enabled. It shows the current state
+    of each player's LED indicator with colored circles.
+
+    Args:
+        context (Context): Current game context containing LED state information
+
+    Note:
+        - Only renders when config.DEBUG_LEDS is True
+        - Shows LED states as colored circles (blue for on, dark gray for off)
+        - Positioned on the left side of the screen for easy visibility
+        - Useful for debugging when running without physical hardware
     """
     if config.DEBUG_LEDS is False:
         return
@@ -107,16 +152,25 @@ def draw_leds(context):
         xpos = xpos + 80
 
 
-# Some hardware abstractions here so we can debug w/o the hardware
-# LED abstraction
 def set_led(context, led, new_state, exclusive=False):
-    """Sets an LED on/off.
+    """
+    Set an individual LED to on or off state.
+    
+    This function controls the physical LED indicators for each player.
+    It handles the platform-specific implementation (GPIO, serial, or simulation)
+    and updates the internal LED state tracking.
 
     Args:
-        context (GameContext): _description_
-        led (number): LED number
-        new_state (bool): True for on, False for off
-        exclusive (bool, optional):  If exclusive is true, turn all others off. Defaults to False.
+        context (Context): Current game context containing LED state and hardware info
+        led (int): LED number (0-3, corresponding to player 1-4)
+        new_state (bool): True to turn LED on, False to turn off
+        exclusive (bool, optional): If True, turn all other LEDs off first. Defaults to False.
+
+    Note:
+        - For GPIO mode: Directly controls Raspberry Pi GPIO pins
+        - For serial mode: Sends LED commands via serial communication
+        - For PC mode: Only updates internal state (no physical hardware)
+        - When exclusive=True, all other LEDs are turned off before setting this one
     """
     # print("set_led(%d, %s)" % (led, state))
 
@@ -133,11 +187,20 @@ def set_led(context, led, new_state, exclusive=False):
 
 
 def set_all_leds(context, new_state=False):
-    """Set all LEDs to the same state
+    """
+    Set all LEDs to the same state simultaneously.
+    
+    This function provides a convenient way to control all player LEDs at once,
+    commonly used for resetting all indicators or setting them to a known state.
 
     Args:
-        context (_type_): current game context
-        new_state (bool): new LED state (Defaults to False.)
+        context (Context): Current game context containing LED state information
+        new_state (bool, optional): New state for all LEDs. Defaults to False (off).
+
+    Note:
+        - Calls set_led() for each player LED
+        - Useful for game state transitions (e.g., clearing all LEDs when starting)
+        - More efficient than calling set_led() multiple times
     """
     for k in range(0, config.PLAYERS):
         set_led(context, k, new_state, False)
@@ -145,14 +208,25 @@ def set_all_leds(context, new_state=False):
 
 def setup_serial(context, device):
     """
-    Configure the context with the serial port
+    Configure and initialize serial communication for external hardware.
+    
+    This function sets up serial communication with external hardware (typically
+    Arduino) that handles physical buttons and LEDs. It establishes the connection,
+    waits for the hardware to reset, and verifies communication is working.
 
     Args:
-        context (GameContext): Game Context
-        device (str): serial port name
+        context (Context): Game context to store the serial port object
+        device (str): Serial port device name (e.g., "/dev/cu.usbserial*")
 
     Returns:
-        serial: pyserial serial port object or False if not configured
+        serial.Serial: Configured serial port object, or False if setup fails
+
+    Note:
+        - Only works when PLATFORM is set to "pcserial"
+        - Falls back to PC mode if serial device doesn't exist
+        - Waits for hardware reset and "RESET OK" message
+        - Flushes input/output buffers after successful connection
+        - Baud rate is fixed at 115200 with 8N1 configuration
     """
     if config.PLATFORM != "pcserial":
         return False
@@ -192,10 +266,25 @@ def setup_serial(context, device):
 
 
 def setup_gpio(context):
-    """Setup rPI GPIO Pins
+    """
+    Setup Raspberry Pi GPIO pins for buttons and LEDs.
+    
+    This function configures the GPIO pins for player button inputs and LED outputs
+    when running on Raspberry Pi hardware. It sets up button detection with
+    debouncing and configures LED pins as outputs.
 
     Args:
-        context (GameContext): Game Context
+        context (Context): Game context (not used in this function but required for consistency)
+
+    Note:
+        - Only runs when PLATFORM is set to "rpi"
+        - Uses BCM pin numbering scheme
+        - Button pins are configured as inputs with internal pull-up resistors
+        - LED pins are configured as outputs
+        - Button events are detected on falling edge (button press to ground)
+        - Debounce time is set to 50ms to prevent false triggers
+        - GPIO warnings are disabled to suppress pin 20 warnings
+        - All LEDs are initialized to off state
     """
     if config.PLATFORM != "rpi":
         return
@@ -216,19 +305,47 @@ def setup_gpio(context):
 
     set_all_leds(context)
 
+
 def clear_display(context):
     """
-    clear screen
+    Clear the entire display screen to black.
+    
+    This function fills the entire screen with black color, effectively
+    clearing all previously drawn content. It's called at the beginning
+    of each frame to ensure a clean drawing surface.
 
     Args:
-        context (Context): current game context
+        context (Context): Current game context containing the screen surface
+
+    Note:
+        - Uses pygame's fill() method with black color (0, 0, 0)
+        - Called at the start of render_all() for each frame
+        - Ensures no artifacts from previous frames remain visible
     """
     context.screen.fill((0, 0, 0))
 
 
 def init_game(context):
     """
-    initializes the game and screen
+    Initialize the game display, fonts, and basic game state.
+    
+    This function sets up the Pygame display surface based on configuration,
+    loads all required fonts, and prepares the game for rendering. It handles
+    different display modes (windowed, borderless, fullscreen) and platform-specific
+    initialization.
+
+    Args:
+        context (Context): Game context to initialize with display and font information
+
+    Note:
+        - Creates display surface based on DISPLAY_STYLE configuration
+        - Supports multiple display modes: windowed, borderless, fullscreen
+        - Can target specific display monitors using DISPLAY_ID
+        - Hides the mouse cursor for cleaner game appearance
+        - Loads multiple font sizes for different UI elements
+        - Fonts are loaded from the fonts/ directory
+        - Clears the display after initialization
+        - Platform-specific working directory changes for Raspberry Pi
     """
     # set display ID here via display = 1 if needed.
     context.screen = None
@@ -271,7 +388,23 @@ def init_game(context):
 
 
 def handle_buzz_in(context):
-    # stop the clock by changing state.
+    """
+    Handle player buzz-in event and transition game state.
+    
+    This function is called when a player successfully buzzes in during gameplay.
+    It plays appropriate sound effects, controls LED indicators, and spawns
+    particle effects for visual feedback.
+
+    Args:
+        context (Context): Current game context containing player and game state
+
+    Note:
+        - Transitions game state to BUZZIN
+        - Plays unique player sound if enabled, otherwise plays generic BUZZ sound
+        - Turns on only the buzzing player's LED (exclusive mode)
+        - Spawns particle explosion effect at screen center
+        - Particle effects provide visual feedback for successful buzz-in
+    """
     context.state = GameState.BUZZIN
 
     # play a sound
@@ -303,7 +436,26 @@ def handle_buzz_in(context):
          500
      )
     
+
 def draw_scores(context):
+    """
+    Draw player scores and names in the score display area.
+    
+    This function renders the player score display showing each player's name
+    and current score. The display adapts to the invert_display setting,
+    positioning scores either at the top or bottom of the screen.
+
+    Args:
+        context (Context): Current game context containing player scores and names
+
+    Note:
+        - Supports both normal and inverted display modes
+        - Shows player names and scores in themed colors
+        - Highlights the currently buzzing player with different colors
+        - Draws separators between player areas
+        - Uses theme colors for consistent visual appearance
+        - Responsive layout that adapts to screen dimensions
+    """
     i = 1
 
     if context.invert_display:
@@ -431,10 +583,22 @@ def draw_scores(context):
 
 def draw_title(context):
     """
-    Draw the game title
+    Draw the game title and logo.
+    
+    This function renders the game title text and logo images. The layout
+    adapts to the invert_display setting, positioning elements either at
+    the top or bottom of the screen.
 
     Args:
-        context (Context): current game context
+        context (Context): Current game context containing display information
+
+    Note:
+        - Loads and scales logo image based on LOGO_RESIZE_FACTOR
+        - Supports both normal and inverted display modes
+        - Logo is drawn on both left and right sides for symmetry
+        - Title text is centered between the logos
+        - Uses theme colors for consistent appearance
+        - Only draws logo when DRAW_LOGO is enabled
     """
     img = pygame.image.load(config.LOGO).convert_alpha()
     line_padding = 60
@@ -494,6 +658,25 @@ def draw_title(context):
 
 
 def draw_splash(context):
+    """
+    Display splash screen and wait for user input.
+    
+    This function shows a splash screen image and pauses the game until
+    the user presses any key. It's used for game startup and can be
+    triggered manually during gameplay.
+
+    Args:
+        context (Context): Current game context containing display information
+
+    Note:
+        - Loads and displays splash image from config.SPLASH
+        - Centers the image on screen
+        - Blocks execution until any key is pressed
+        - Transitions game state to SPLASH during display
+        - Returns to IDLE state after keypress
+        - Calls render_all() to refresh the display
+        - Uses pygame.display.flip() for immediate visual feedback
+    """
     print("Drawing splash screen and pausing. Press any key to resume.")
     context.state = GameState.SPLASH
     clear_display(context)
@@ -522,6 +705,26 @@ def draw_splash(context):
 
 
 def draw_help(context):
+    """
+    Display help screen with game controls and instructions.
+    
+    This function renders a modal help screen showing all available
+    keyboard shortcuts and their functions. It pauses the game until
+    the user dismisses it with any keypress.
+
+    Args:
+        context (Context): Current game context containing display information
+
+    Note:
+        - Creates a modal dialog box centered on screen
+        - Lists all keyboard shortcuts with descriptions
+        - Uses theme colors for consistent appearance
+        - Blocks execution until any key is pressed
+        - Transitions game state to HELP during display
+        - Returns to IDLE state after dismissal
+        - Calls render_all() to refresh the display
+        - Help text includes scoring, timing, and game control shortcuts
+    """
     helpstr = [
         {"key": "SPACE", "text": "Stop/Start clock"},
         {"key": "SHIFT-ESC", "text": "Quit"},
@@ -641,6 +844,25 @@ def draw_help(context):
 
 
 def draw_state(context):
+    """
+    Draw the current game state text on screen.
+    
+    This function displays text indicating the current game state
+    (e.g., "TIME'S UP!", "STOPPED", or nothing for running games).
+    The text is positioned below the clock display.
+
+    Args:
+        context (Context): Current game context containing game state
+
+    Note:
+        - Shows different text based on current GameState
+        - TIMEUP state displays "TIME'S UP!"
+        - IDLE state displays "STOPPED"
+        - RUNNING state shows no text
+        - Uses theme colors for consistent appearance
+        - Positioned below the clock display area
+        - Text includes shadow effects for better visibility
+    """
     statestr = ""
 
     if context.state == GameState.TIMEUP:
@@ -667,10 +889,24 @@ def draw_state(context):
 
 
 def draw_clock(context):
-    """draw the large clock in the center of the screen
+    """
+    Draw the large countdown clock in the center of the screen.
+    
+    This function renders the main game timer display showing minutes and seconds
+    remaining. It also calls draw_state() to show the current game state below
+    the clock. The clock is only displayed when CLOCK_ENABLED is True.
 
     Args:
-        context (Context): current game context
+        context (Context): Current game context containing clock and game state
+
+    Note:
+        - Converts milliseconds to minutes:seconds format
+        - Centers the clock on screen
+        - Uses large font (200pt) for visibility
+        - Includes shadow effects for better readability
+        - Only renders when CLOCK_ENABLED is True
+        - Calls draw_state() to show game state below clock
+        - Positioned in the upper third of the screen
     """
     minutes = math.floor(context.clock / 60000)
     sec = int((context.clock - (minutes * 60000)) / 1000)
@@ -693,8 +929,25 @@ def draw_clock(context):
     )
 
 
-
 def draw_gamestate(context):
+    """
+    Draw game state-specific information on screen.
+    
+    This function renders information that changes based on the current
+    game state. Currently, it shows the "buzzed in" message when a
+    player has successfully buzzed in.
+
+    Args:
+        context (Context): Current game context containing player and game state
+
+    Note:
+        - Only renders content when state is BUZZIN
+        - Shows player name with "Buzzed in!" message
+        - Message position adapts to invert_display setting
+        - Uses large font (150pt) for visibility
+        - Includes shadow effects for better readability
+        - Positioned either at top or bottom based on display orientation
+    """
     if context.state == GameState.BUZZIN:
         # draw their name
         msg = f"{context.player_names[context.player_buzzed_in]} Buzzed in!"
@@ -714,9 +967,28 @@ def draw_gamestate(context):
             fontsize=150
         )
 
+
 def draw_radial(context, color1, color2, width=40):
     """
-    Draws a radial circus-tent like background
+    Draw a radial circus-tent like animated background.
+    
+    This function creates an animated radial background effect using
+    triangular segments that rotate around a center point. It's used
+    to create visual interest when RENDER_BACKGROUND is enabled.
+
+    Args:
+        context (Context): Current game context containing display information
+        color1 (pygame.Color): First color for alternating segments
+        color2 (pygame.Color): Second color for alternating segments
+        width (int, optional): Width of each radial segment. Defaults to 40.
+
+    Note:
+        - Creates animated effect by rotating segments over time
+        - Uses pygame.gfxdraw.filled_polygon for smooth rendering
+        - Segments extend beyond screen boundaries for full coverage
+        - Colors alternate between segments for visual variety
+        - Animation speed is tied to pygame time for consistent motion
+        - Creates a circus-tent or sunburst visual effect
     """
     center = [context.screenInfo.current_w/2, context.screenInfo.current_h+100]
     w = context.screenInfo.current_w
@@ -749,9 +1021,22 @@ def draw_radial(context, color1, color2, width=40):
         color_flip = not color_flip
         i = i + width
 
+
 def render_background(context):
     """
-    Render the background
+    Render the animated background if enabled.
+    
+    This function conditionally renders the radial background effect
+    based on the RENDER_BACKGROUND configuration setting.
+
+    Args:
+        context (Context): Current game context containing display information
+
+    Note:
+        - Only renders when config.RENDER_BACKGROUND is True
+        - Uses theme colors bg_one and bg_two for the effect
+        - Calls draw_radial() to create the animated background
+        - Background provides visual interest without interfering with gameplay
     """
     if not config.RENDER_BACKGROUND:
         return
@@ -760,15 +1045,51 @@ def render_background(context):
     color2 = config.THEME_COLORS["bg_two"]    
     draw_radial(context, color1, color2)
 
+
 def draw_particles(context):
+    """
+    Draw and update particle effects on screen.
+    
+    This function renders all active particle effects and updates their
+    physics simulation. Particles are used for visual feedback during
+    game events like player buzz-ins.
+
+    Args:
+        context (Context): Current game context containing particle group
+
+    Note:
+        - Draws all particles in the particle group
+        - Updates particle physics with delta time
+        - Particles are used for explosion effects and visual feedback
+        - Delta time is calculated from pygame clock for smooth animation
+        - Particle system is managed by the particleutil module
+    """
     context.particle_group.draw(context.screen)
 
     # update
     dt = context.pyclock.tick() / 1000
     context.particle_group.update(dt)
 
+
 def render_all(context):
-    """Render the entire screen"""
+    """
+    Render the complete game screen for one frame.
+    
+    This function orchestrates the rendering of all game elements in
+    the correct order. It clears the screen, draws background, UI elements,
+    game state, particles, and debug information, then updates the display.
+
+    Args:
+        context (Context): Current game context containing all game state and display info
+
+    Note:
+        - Clears the screen at the start of each frame
+        - Renders elements in back-to-front order: background, title, clock, scores, game state, particles, debug LEDs
+        - Only shows scores when not in BUZZIN state
+        - Debug LEDs are drawn last for visibility
+        - Calls pygame.display.flip() once at the end for efficient rendering
+        - This is the main rendering pipeline called each frame
+    """
     clear_display(context)
     render_background(context)
     draw_title(context)
@@ -787,12 +1108,23 @@ def render_all(context):
 
 def handle_serial_input(context):
     """
-    process any incoming serial data
+    Process incoming serial data from external hardware.
+    
+    This function checks for incoming serial data and processes button press
+    events from external hardware (typically Arduino). It converts serial
+    messages into pygame events for integration with the main event system.
 
     Args:
-        context (Context): current game context
-    """
+        context (Context): Current game context containing serial port information
 
+    Note:
+        - Only processes data when serial port is available
+        - Expects messages in format: "SWITCH <number> PRESSED"
+        - Only processes button presses when game state is RUNNING
+        - Converts serial events to pygame events for consistent handling
+        - Button numbers are mapped to player indices
+        - Debug output is controlled by DEBUG_SERIAL flag
+    """
     # do we have serial data?
     if context.serial_port:
         if context.serial_port.inWaiting() > 0:
@@ -812,10 +1144,24 @@ def handle_serial_input(context):
 
 def handle_clock_event(context):
     """
-    process one tick of the clock
+    Process one tick of the game clock timer.
+    
+    This function handles the countdown timer logic, updating the clock
+    value and triggering appropriate events when time runs out. It also
+    manages LED attraction mode when the game is idle.
 
     Args:
-        context (Context): current game context
+        context (Context): Current game context containing clock and game state
+
+    Note:
+        - Decrements clock by CLOCK_STEP milliseconds each tick
+        - Plays warning beep when 4 seconds or less remain
+        - Triggers time's up event when clock reaches zero
+        - Sets all LEDs on when time expires
+        - Plays TIMESUP sound effect
+        - Transitions game state to TIMEUP
+        - In idle mode, cycles through LEDs for attraction effect
+        - LED cycling creates a "walking light" pattern
     """
     if context.clock > 0:
         if context.state == GameState.RUNNING:
@@ -847,14 +1193,42 @@ def handle_clock_event(context):
 
 
 def handle_keyboard_event(context, event):
+    """
+    Process keyboard input events and execute corresponding actions.
+    
+    This function handles all keyboard input for the game, including
+    player scoring, game control, sound effects, and system commands.
+    It provides both MC (Master of Ceremonies) controls and player
+    simulation controls.
 
+    Args:
+        context (Context): Current game context containing game state and scores
+        event (pygame.event.Event): The keyboard event to process
+
+    Note:
+        - Any keypress exits BUZZIN state
+        - Shift+Escape provides clean exit
+        - Number keys 1-4 add points to respective players
+        - Q,W,E,R keys subtract points from respective players
+        - Space bar controls game state transitions
+        - P/L keys adjust clock time (+/- 5 seconds)
+        - B/T keys play sound effects
+        - H key shows help screen
+        - I key toggles display inversion
+        - N key opens name editor
+        - S key shows splash screen
+        - Shift+A resets entire game
+        - Shift+Z resets clock only
+        - Keypad keys simulate player buttons in development mode
+        - Z,X,C,V keys simulate player buttons in PC mode
+    """
     # any keypress will take us out of buzzed in.
     if context.state == GameState.BUZZIN:
         context.state = GameState.IDLE
 
     # handle quit event (shift-escape)
     if event.key == pygame.K_ESCAPE and pygame.key.get_mods() & pygame.KMOD_SHIFT:
-        print("Exiting at user request...")
+        print("\n\n Clean Exit: exiting at user request..   .")
         pygame.display.quit()
         pygame.quit()
         sys.exit()
@@ -991,10 +1365,24 @@ def handle_keyboard_event(context, event):
 
 def event_loop(context):
     """
-    main game event loop
+    Main game event loop that processes input and updates the game.
+    
+    This function contains the primary game loop that runs continuously
+    while the game is active. It handles all input events, updates game
+    state, and renders the screen at the configured frame rate.
 
     Args:
-        context (_type_): _description_
+        context (Context): Current game context containing all game state and systems
+
+    Note:
+        - Sets up timer for clock events using PYGAME_CLOCKEVENT
+        - Processes serial input for external hardware
+        - Handles pygame events (quit, keyboard, custom timer)
+        - Manages player buzz-in state transitions
+        - Calls render_all() to update the display
+        - Maintains consistent frame rate using pygame clock
+        - Continues until running flag is set to 0
+        - Handles both hardware and simulated input methods
     """
     # ------------------ main event loop ------------------
     running = 1
@@ -1034,7 +1422,21 @@ def event_loop(context):
 
 def main():
     """
-    Main Program Start
+    Main program entry point and initialization.
+    
+    This function initializes the game, sets up hardware connections,
+    and starts the main event loop. It handles platform-specific setup
+    and ensures all systems are ready before gameplay begins.
+
+    Note:
+        - Creates and restores game context from saved state
+        - Sets up GPIO pins for Raspberry Pi mode
+        - Configures serial communication for PC serial mode
+        - Initializes display, fonts, and game systems
+        - Renders initial screen state
+        - Enters main event loop
+        - Handles platform-specific initialization requirements
+        - Restores previous game state if available
     """
     context = Context()
     context.restore()
