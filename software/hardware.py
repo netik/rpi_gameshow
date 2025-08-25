@@ -35,10 +35,10 @@ def button_event(context, channel):
 def set_led(context, led, new_state, exclusive=False):
     if exclusive:
         set_all_leds(context, False)
-    if config.PLATFORM == "rpi":
-        from RPi.GPIO import GPIO
 
+    if config.PLATFORM == "rpi":
         GPIO.output(config.GPIO_LED_MAP[led], new_state)
+
     if config.PLATFORM == "pcserial":
         serial_send(context, b"LED %d %d\n" % ((led + 1), new_state))
     context.led_state[led] = new_state

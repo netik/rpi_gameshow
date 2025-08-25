@@ -79,7 +79,7 @@ def draw_scores(context):
     if context.invert_display:
         top_y = 0
     else:
-        top_y = context.screenInfo.current_h - 240
+        top_y = context.screen_info.current_h - 240
 
     while i < config.PLAYERS + 1:
         if context.invert_display:
@@ -88,9 +88,9 @@ def draw_scores(context):
                 context.screen,
                 config.THEME_COLORS["buzzed_in_bg"] if context.player_buzzed_in == (i - 1) else config.THEME_COLORS["player_area_bg"],
                 (
-                    (i - 1) * context.screenInfo.current_w / config.PLAYERS,
+                    (i - 1) * context.screen_info.current_w / config.PLAYERS,
                     0,
-                    (context.screenInfo.current_w / config.PLAYERS),
+                    (context.screen_info.current_w / config.PLAYERS),
                     240,
                 ),
             )
@@ -98,7 +98,7 @@ def draw_scores(context):
             # player name
             ptext.draw(
                 context.player_names[i - 1],
-                centerx=(context.screenInfo.current_w / 8 * ((i * 2) - 1)),
+                centerx=(context.screen_info.current_w / 8 * ((i * 2) - 1)),
                 centery=60,
                 color=config.THEME_COLORS["buzzed_in_fg"] if context.player_buzzed_in == (i - 1) else config.THEME_COLORS["player_name_fg"],
                 fontname="fonts/RobotoCondensed-Bold.ttf",
@@ -109,7 +109,7 @@ def draw_scores(context):
             # score
             ptext.draw(
                 f"{context.scores[i - 1]:d}",
-                centerx=(context.screenInfo.current_w / 8 * ((i * 2) - 1)),
+                centerx=(context.screen_info.current_w / 8 * ((i * 2) - 1)),
                 centery=170,
                 color=config.THEME_COLORS["buzzed_in_fg"] if context.player_buzzed_in == (i - 1) else config.THEME_COLORS["player_score_fg"],
                 fontname="fonts/RobotoCondensed-Bold.ttf",
@@ -122,8 +122,8 @@ def draw_scores(context):
                 pygame.draw.line(
                     context.screen,
                     config.THEME_COLORS["separator"],
-                    ((context.screenInfo.current_w / 4 * i - 2), 0),
-                    ((context.screenInfo.current_w / 4 * i - 2), 240),
+                    ((context.screen_info.current_w / 4 * i - 2), 0),
+                    ((context.screen_info.current_w / 4 * i - 2), 240),
                     width=3,
                 )
         else:
@@ -132,17 +132,17 @@ def draw_scores(context):
                 context.screen,
                 config.THEME_COLORS["buzzed_in_bg"] if context.player_buzzed_in == (i - 1) else config.THEME_COLORS["player_area_bg"],
                 (
-                    (i - 1) * context.screenInfo.current_w / 4,
+                    (i - 1) * context.screen_info.current_w / 4,
                     top_y,
-                    (context.screenInfo.current_w / 4),
-                    context.screenInfo.current_h,
+                    (context.screen_info.current_w / 4),
+                    context.screen_info.current_h,
                 ),
             )
 
             # player name
             ptext.draw(
                 context.player_names[i - 1],
-                centerx=(context.screenInfo.current_w / 8 * ((i * 2) - 1)),
+                centerx=(context.screen_info.current_w / 8 * ((i * 2) - 1)),
                 centery=top_y + 50,
                 color=config.THEME_COLORS["buzzed_in_fg"] if context.player_buzzed_in == (i - 1) else config.THEME_COLORS["player_name_fg"],
                 fontname="fonts/RobotoCondensed-Bold.ttf",
@@ -153,7 +153,7 @@ def draw_scores(context):
             # score
             ptext.draw(
                 f"{context.scores[i - 1]:d}",
-                centerx=(context.screenInfo.current_w / 8 * ((i * 2) - 1)),
+                centerx=(context.screen_info.current_w / 8 * ((i * 2) - 1)),
                 centery=top_y + 170,
                 color=config.THEME_COLORS["buzzed_in_fg"] if context.player_buzzed_in == (i - 1) else config.THEME_COLORS["player_score_fg"],
                 fontname="fonts/RobotoCondensed-Bold.ttf",
@@ -167,12 +167,12 @@ def draw_scores(context):
                     context.screen,
                     config.THEME_COLORS["separator"],
                     (
-                        (context.screenInfo.current_w / 4 * i - 2),
+                        (context.screen_info.current_w / 4 * i - 2),
                         top_y,
                     ),
                     (
-                        (context.screenInfo.current_w / 4 * i - 2),
-                        context.screenInfo.current_h,
+                        (context.screen_info.current_w / 4 * i - 2),
+                        context.screen_info.current_h,
                     ),
                     width=3,
                 )
@@ -185,7 +185,7 @@ def draw_scores(context):
             context.screen,
             config.THEME_COLORS["separator"],
             (0, 240),
-            (context.screenInfo.current_w, 240),
+            (context.screen_info.current_w, 240),
             width=2,
         )
     else:
@@ -194,7 +194,7 @@ def draw_scores(context):
             context.screen,
             config.THEME_COLORS["separator"],
             (0, top_y),
-            (context.screenInfo.current_w, top_y),
+            (context.screen_info.current_w, top_y),
             width=2,
         )
 
@@ -228,22 +228,22 @@ def draw_title(context):
                 resized_img,
                 (
                     line_padding,
-                    context.screenInfo.current_h - resized_img.get_height() - line_padding,
+                    context.screen_info.current_h - resized_img.get_height() - line_padding,
                 ),
             )
             context.screen.blit(
                 resized_img,
                 (
-                    context.screenInfo.current_w - resized_img.get_width() - line_padding,
-                    context.screenInfo.current_h - resized_img.get_height() - line_padding,
+                    context.screen_info.current_w - resized_img.get_width() - line_padding,
+                    context.screen_info.current_h - resized_img.get_height() - line_padding,
                 ),
             )
         # title
         ptext.draw(
             config.TITLE,
-            centerx=context.screenInfo.current_w / 2,
+            centerx=context.screen_info.current_w / 2,
             # 35 here is a guess, given the font is 80 pixels(?) high
-            centery=context.screenInfo.current_h - (resized_img.get_height() / 2) - line_padding,
+            centery=context.screen_info.current_h - (resized_img.get_height() / 2) - line_padding,
             color=config.THEME_COLORS["title_text"],
             fontname="fonts/RobotoCondensed-Bold.ttf",
             fontsize=70,
@@ -257,14 +257,14 @@ def draw_title(context):
             context.screen.blit(
                 resized_img,
                 (   
-                    context.screenInfo.current_w - resized_img.get_width() - line_padding,
+                    context.screen_info.current_w - resized_img.get_width() - line_padding,
                     line_padding,
                 ),
             )
 
         ptext.draw(
             config.TITLE,
-            centerx=context.screenInfo.current_w / 2,
+            centerx=context.screen_info.current_w / 2,
             centery=line_padding + (resized_img.get_height() / 2),
             color=config.THEME_COLORS["title_text"],
             fontname="fonts/RobotoCondensed-Bold.ttf",
@@ -302,8 +302,8 @@ def draw_splash(context):
     context.screen.blit(
         img,
         (
-            context.screenInfo.current_w / 2 - img.get_width() / 2,
-            context.screenInfo.current_h / 2 - img.get_width() / 2,
+            context.screen_info.current_w / 2 - img.get_width() / 2,
+            context.screen_info.current_h / 2 - img.get_width() / 2,
         ),
     )
     pygame.display.flip()
@@ -368,11 +368,11 @@ def draw_help(context):
     # draw a modal box at 85% of the screen. Stop the clock.
     context.state = GameState.HELP
 
-    width = context.screenInfo.current_w * 0.30
-    height = context.screenInfo.current_h * 0.75
+    width = context.screen_info.current_w * 0.30
+    height = context.screen_info.current_h * 0.75
 
-    xtop = (context.screenInfo.current_w - width)  / 2
-    ytop = (context.screenInfo.current_h - height)  / 2
+    xtop = (context.screen_info.current_w - width)  / 2
+    ytop = (context.screen_info.current_h - height)  / 2
     
     # inside box (fill)
     pygame.draw.rect(
@@ -491,11 +491,11 @@ def draw_state(context):
     if context.state == GameState.RUNNING:
         statestr = ""
 
-    message_y = context.screenInfo.current_h / 3 + 260
+    message_y = context.screen_info.current_h / 3 + 260
 
     ptext.draw(
         statestr,
-        centerx=context.screenInfo.current_w / 2,
+        centerx=context.screen_info.current_w / 2,
         centery=message_y,
         color=config.THEME_COLORS["state_text"],
         fontname="fonts/RobotoCondensed-Bold.ttf",
@@ -536,8 +536,8 @@ def draw_clock(context):
     # draw clock
     ptext.draw(
         f"{minutes:d}:{sec:02d}",
-        centerx=context.screenInfo.current_w / 2,
-        centery=context.screenInfo.current_h / 3 + 100,
+        centerx=context.screen_info.current_w / 2,
+        centery=context.screen_info.current_h / 3 + 100,
         color=config.THEME_COLORS["clock_text"],
         fontname="fonts/RobotoCondensed-Bold.ttf",
         fontsize=200,
@@ -572,11 +572,11 @@ def draw_gamestate(context):
         if context.invert_display:
             message_y = 125
         else:
-            message_y = context.screenInfo.current_h - 125
+            message_y = context.screen_info.current_h - 125
       
         ptext.draw(
             msg,
-            centerx=context.screenInfo.current_w / 2,
+            centerx=context.screen_info.current_w / 2,
             centery=message_y,
             shadow=(1,1),
             color=config.THEME_COLORS["buzzed_in_message_fg"],
@@ -607,9 +607,9 @@ def draw_radial(context, color1, color2, width=40):
         - Animation speed is tied to pygame time for consistent motion
         - Creates a circus-tent or sunburst visual effect
     """
-    center = [context.screenInfo.current_w/2, context.screenInfo.current_h+100]
-    w = context.screenInfo.current_w
-    h = context.screenInfo.current_h
+    center = [context.screen_info.current_w/2, context.screen_info.current_h+100]
+    w = context.screen_info.current_w
+    h = context.screen_info.current_h
     # radius = math.sqrt((w/2)**2 + (h/2)**2)  # maximum distance to the window boundary
     radius = w * 3
     i = 0
@@ -752,7 +752,7 @@ def init_game(context):
         # uses default display
         context.screen = pygame.display.set_mode(
             (config.DISPLAY_WINDOW_HEIGHT, config.DISPLAY_WINDOW_WIDTH), pygame.SHOWN)
-        context.screenInfo = pygame.display.Info()
+        context.screen_info = pygame.display.Info()
     elif config.DISPLAY_STYLE == "borderless":
         # now let's see how big our screen is
         # and create a borderless window that's as big as the entire screen
@@ -760,16 +760,16 @@ def init_game(context):
             (0,0), 
             pygame.NOFRAME,
             display=config.DISPLAY_ID)
-        context.screenInfo = pygame.display.Info()
+        context.screen_info = pygame.display.Info()
     elif config.DISPLAY_STYLE == "fullscreen":
         context.screen = pygame.display.set_mode(
             (0, 0), 
             pygame.FULLSCREEN, 
             display=config.DISPLAY_ID)
-        context.screenInfo = pygame.display.Info()
+        context.screen_info = pygame.display.Info()
     
     print("Screen Info: ")
-    print(context.screenInfo)
+    print(context.screen_info)
 
     # hide mouse
     pygame.mouse.set_visible(False)

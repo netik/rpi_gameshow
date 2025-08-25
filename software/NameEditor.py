@@ -39,12 +39,12 @@ class NameEditor:
         """
         self.context = context
         
-        # Ensure screenInfo is initialized
-        if self.context.screenInfo is None:
-            self.context.screenInfo = pygame.display.Info()
+        # Ensure screen_info is initialized
+        if self.context.screen_info is None:
+            self.context.screen_info = pygame.display.Info()
             
-        self.width = context.screenInfo.current_w * 0.15  # 85% total
-        self.height = context.screenInfo.current_h * 0.10  # 75% total
+        self.width = context.screen_info.current_w * 0.15  # 85% total
+        self.height = context.screen_info.current_h * 0.10  # 75% total
         
         # Setup fonts
         self.context.load_font("namefont", "RobotoCondensed-Bold.ttf", self.INPUT_FONT_SIZE)    
@@ -79,8 +79,8 @@ class NameEditor:
             (
                 self.width,
                 self.height,
-                self.context.screenInfo.current_w - (self.width * 2),
-                self.context.screenInfo.current_h - (self.height * 2),
+                self.context.screen_info.current_w - (self.width * 2),
+                self.context.screen_info.current_h - (self.height * 2),
             ),
         )
 
@@ -91,8 +91,8 @@ class NameEditor:
             (
                 self.width,
                 self.height,
-                self.context.screenInfo.current_w - (self.width * 2),
-                self.context.screenInfo.current_h - self.height * 2,
+                self.context.screen_info.current_w - (self.width * 2),
+                self.context.screen_info.current_h - self.height * 2,
             ),
         )
 
@@ -102,7 +102,7 @@ class NameEditor:
         # Center the title
         ptext.draw(
             "Edit Player Names (ESC to exit)",
-            centerx=self.context.screenInfo.current_w / 2,
+            centerx=self.context.screen_info.current_w / 2,
             centery=self.height + self.input_height - 10,
             fontname="fonts/RobotoCondensed-Bold.ttf",
             fontsize=self.INPUT_FONT_SIZE - 20
@@ -116,7 +116,7 @@ class NameEditor:
                 (
                     xpos - 4,
                     self.height + self.INPUTS_OFFSET + (i * self.input_spacing),
-                    self.context.screenInfo.current_w - (self.width * 2) - 120,
+                    self.context.screen_info.current_w - (self.width * 2) - 120,
                     self.input_height,
                 ),
             )
@@ -173,7 +173,7 @@ class NameEditor:
                 (
                     xpos - 4,
                     self.height + self.INPUTS_OFFSET + (editing * self.input_spacing),
-                    self.context.screenInfo.current_w - (self.width * 2) - 120,
+                    self.context.screen_info.current_w - (self.width * 2) - 120,
                     self.input_height
                 )
             )
@@ -212,7 +212,7 @@ class NameEditor:
                         (
                             xpos - 4,
                             self.height + self.INPUTS_OFFSET + (editing * self.input_spacing),
-                            self.context.screenInfo.current_w - (self.width * 2) - 120,
+                            self.context.screen_info.current_w - (self.width * 2) - 120,
                             self.input_height
                         )
                     )
@@ -260,7 +260,7 @@ class NameEditor:
                     (
                         xpos-4,
                         self.height + self.INPUTS_OFFSET + (editing * self.input_spacing),
-                        self.context.screenInfo.current_w - (self.width * 2) - 120,
+                        self.context.screen_info.current_w - (self.width * 2) - 120,
                         self.input_height,
                     ),
                 )

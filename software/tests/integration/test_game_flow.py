@@ -103,7 +103,7 @@ class TestGameFlow:
         """Test state save and restore flow."""
         with patch('pygame.time.Clock'), \
              patch('pygame.sprite.Group'), \
-             patch('config.STATE_FILE_NAME', 'test_gamestate.pickle'):
+             patch('game_config.STATE_FILE_NAME', 'test_gamestate.pickle'):
             
             # Mock Sound class to avoid file loading
             mock_sound_instance = Mock()

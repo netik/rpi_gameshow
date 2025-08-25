@@ -90,7 +90,7 @@ class TestContext:
         """Test save and restore functionality."""
         with patch('pygame.time.Clock') as mock_clock, \
              patch('pygame.sprite.Group') as mock_group, \
-             patch('config.STATE_FILE_NAME', temp_state_file):
+             patch('game_config.STATE_FILE_NAME', temp_state_file):
             
             # Mock Sound class to avoid file loading
             mock_sound_instance = Mock()
@@ -120,7 +120,7 @@ class TestContext:
         """Test restore method with nonexistent file."""
         with patch('pygame.time.Clock') as mock_clock, \
              patch('pygame.sprite.Group') as mock_group, \
-             patch('config.STATE_FILE_NAME', 'nonexistent_file.pkl'):
+             patch('game_config.STATE_FILE_NAME', 'nonexistent_file.pkl'):
             
             # Mock Sound class to avoid file loading
             mock_sound_instance = Mock()

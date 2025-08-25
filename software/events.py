@@ -165,12 +165,11 @@ def handle_keyboard_event(context, event):
 
     # handle quit event (shift-escape)
     if event.key == pygame.K_ESCAPE and pygame.key.get_mods() & pygame.KMOD_SHIFT:
-        print("\n\n Clean Exit: exiting at user request..   .")
+        print("\n\n Clean Exit: exiting at user request...")
         pygame.display.quit()
         pygame.quit()
         sys.exit()
-        return
-    
+
     # MC Controls
     #
     # 1,2,3,4 = Adds a point to that player 1,2,3,4
@@ -179,65 +178,39 @@ def handle_keyboard_event(context, event):
     # shift-z = reset round
     # (see help for the rest)
     #
-    if event.key == pygame.K_1:
-        context.scores[0] += 1
-        context.save()
+    # Player scoring - add points
+    score_add_keys = [pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4]
+    for i, key in enumerate(score_add_keys):
+        if event.key == key:
+            context.scores[i] += 1
+            context.save()
+            break
 
-    if event.key == pygame.K_2:
-        context.scores[1] += 1
-        context.save()
+    # Player scoring - subtract points
+    score_subtract_keys = [pygame.K_q, pygame.K_w, pygame.K_e, pygame.K_r]
+    for i, key in enumerate(score_subtract_keys):
+        if event.key == key:
+            context.scores[i] -= 1
+            context.save()
+            break
 
-    if event.key == pygame.K_3:
-        context.scores[2] += 1
-        context.save()
-
-    if event.key == pygame.K_4:
-        context.scores[3] += 1
-        context.save()
-
-    if event.key == pygame.K_q:
-        context.scores[0] -= 1
-        context.save()
-
-    if event.key == pygame.K_w:
-        context.scores[1] -= 1
-        context.save()
-
-    if event.key == pygame.K_e:
-        context.scores[2] -= 1
-        context.save()
-
-    if event.key == pygame.K_r:
-        context.scores[3] -= 1
-        context.save()
-
-    # if we are not running in debug mode we can emulate the buttons
-    # with the keypad
+    # Button emulation for non-RPi platforms
     if config.PLATFORM != "rpi" and context.state == GameState.RUNNING:
-        if event.key == pygame.K_KP1:
-            button_event(context, config.PLAYER_MAP[0])
+        # Keypad keys for development mode
+        keypad_keys = [pygame.K_KP1, pygame.K_KP2, pygame.K_KP3, pygame.K_KP4]
+        for i, key in enumerate(keypad_keys):
+            if event.key == key:
+                button_event(context, config.PLAYER_MAP[i])
+                break
 
-        if event.key == pygame.K_KP2:
-            button_event(context, config.PLAYER_MAP[1])
-
-        if event.key == pygame.K_KP3:
-            button_event(context, config.PLAYER_MAP[2])
-
-        if event.key == pygame.K_KP4:
-            button_event(context, config.PLAYER_MAP[3])
-            
+    # PC mode button emulation
     if config.PLATFORM == "pc" and context.state == GameState.RUNNING:
-        if event.key == pygame.K_z:
-            button_event(context, config.PLAYER_MAP[0])
-
-        if event.key == pygame.K_x:
-            button_event(context, config.PLAYER_MAP[1])
-
-        if event.key == pygame.K_c:
-            button_event(context, config.PLAYER_MAP[2])
-
-        if event.key == pygame.K_v:
-            button_event(context, config.PLAYER_MAP[3])
+        # Z,X,C,V keys for PC mode
+        pc_keys = [pygame.K_z, pygame.K_x, pygame.K_c, pygame.K_v]
+        for i, key in enumerate(pc_keys):
+            if event.key == key:
+                button_event(context, config.PLAYER_MAP[i])
+                break
 
     # sounds
     if event.key == pygame.K_b:
@@ -333,19 +306,19 @@ def handle_buzz_in(context):
 
     # explode some particles
     #spawn_exploding_particles(
-    #     context.screenInfo,
+    #     context.screen_info,
     #     context.particle_group,
     #     (
-    #         (context.player_buzzed_in + 0.5) * context.screenInfo.current_w / config.PLAYERS,
+    #         (context.player_buzzed_in + 0.5) * context.screen_info.current_w / config.PLAYERS,
     #         120
     #     ),
     #     500
     # )
     spawn_exploding_particles(
-         context.screenInfo,
+         context.screen_info,
          context.particle_group,
          (
-           context.screenInfo.current_w / 2,
+           context.screen_info.current_w / 2,
              120
          ),
          500
