@@ -1,3 +1,4 @@
+coverage==7.10.5
 dynaconf==3.2.11
 iniconfig==2.1.0
 packaging==25.0
@@ -6,3 +7,4 @@ pygame==2.6.1
 Pygments==2.19.2
 pyserial==3.5
 pytest==8.4.1
+pytest-cov==6.2.1
