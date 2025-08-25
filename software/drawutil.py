@@ -1,4 +1,7 @@
+# pylint: disable=too-many-arguments
 """
+drawutil.py
+
 Various drawing utility functions for the game show application.
 
 This module provides utility functions for rendering text and other visual
@@ -9,7 +12,6 @@ from typing import Tuple, Union
 import pygame
 
 from Context import Context
-
 
 def drawtext(
     context: Context,

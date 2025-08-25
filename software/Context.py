@@ -4,13 +4,13 @@ GameContext is a container for all the game's global variables.
 
 import os
 import pickle
-import game_config as config
-import pygame
 from typing import Optional, Dict, List, Any
+
+import pygame
+import game_config as config
 
 from Sound import Sound
 from GameState import GameState
-
 
 class Context:
     """
