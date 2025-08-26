@@ -7,12 +7,10 @@ to users when they request help or need to understand the controls.
 
 from typing import List, TypedDict
 
-
 class HelpKey(TypedDict):
     """Type definition for help key entries."""
     key: str
     text: str
-
 
 HELP_KEYS: List[HelpKey] = [
     {"key": "SPACE", "text": "Stop/Start clock"},
@@ -34,5 +32,6 @@ HELP_KEYS: List[HelpKey] = [
     {"key": "I", "text": "Invert Display (toggle)"},
     {"key": "S", "text": "Draw Splash Screen"},
     {"key": "SHIFT-A", "text": "Reset game"},
+    {"key": "SHIFT-D", "text": "Button Debug Mode"},
     {"key": "SHIFT-Z", "text": "Reset Clock"},
 ]

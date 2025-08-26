@@ -13,8 +13,7 @@ import game_config as config
 
 # Required sound files that must be present
 REQUIRED_SOUNDS = ['BEEP', 'BUZZ', 'TIMESUP', 'PLAYER1', 'PLAYER2', 'PLAYER3', 'PLAYER4', 'INVALID']
-
-
+TEST_SOUNDS = ['ONE', 'TWO', 'THREE', 'FOUR']
 class Sound:
     """
     Sound management class for all sound operations.
@@ -70,4 +69,14 @@ class Sound:
                     print(f"ERROR: Missing sound {key}")
                     sys.exit(1)
 
-            print("All Sounds loaded.")
+        # Now load the test sounds
+        for key in TEST_SOUNDS:
+            if key not in self.sounds:
+                print(f"Loading test sound {key}")
+                self.sounds[key] = pygame.mixer.Sound(
+                    os.path.join("sounds/test", f"{key}{config.SOUND_EXT}")
+                )
+                self.sounds[key].set_volume(0.5)
+
+        print("All Sounds loaded.")
+        

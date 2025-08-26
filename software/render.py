@@ -8,6 +8,7 @@ import game_config as config
 from drawutil import drawtext
 from particleutil import spawn_exploding_particles
 from GameState import GameState
+from helpinfo import HELP_KEYS
 
 def clear_display(context):
     context.screen.fill((0, 0, 0))
@@ -342,28 +343,6 @@ def draw_help(context):
         - Calls render_all() to refresh the display
         - Help text includes scoring, timing, and game control shortcuts
     """
-    helpstr = [
-        {"key": "SPACE", "text": "Stop/Start clock"},
-        {"key": "SHIFT-ESC", "text": "Quit"},
-        {"key": "H or ?", "text": "HELP"},
-        {"key": "1", "text": "+1 point Player 1"},
-        {"key": "2", "text": "+1 point Player 2"},
-        {"key": "3", "text": "+1 point Player 3"},
-        {"key": "4", "text": "+1 point Player 4"},
-        {"key": "Q", "text": "-1 point Player 1"},
-        {"key": "W", "text": "-1 point Player 2"},
-        {"key": "E", "text": "-1 point Player 3"},
-        {"key": "R", "text": "-1 point Player 4"},
-        {"key": "P", "text": "Clock: +5 seconds"},
-        {"key": "L", "text": "Clock: -5 seconds"},
-        {"key": "T", "text": 'Play a "time\'s up" sound'},
-        {"key": "B", "text": "Play a buzzer sound"},
-        {"key": "N", "text": "Name Players"},
-        {"key": "I", "text": "Invert Display (toggle)"},
-        {"key": "S", "text": "Draw Splash Screen"},
-        {"key": "SHIFT-A", "text": "Reset game"},
-        {"key": "SHIFT-Z", "text": "Reset Clock"},
-    ]
 
     # draw a modal box at 85% of the screen. Stop the clock.
     context.state = GameState.HELP
@@ -414,7 +393,7 @@ def draw_help(context):
 
     ypos = ypos + 60
 
-    for k in helpstr:
+    for k in HELP_KEYS:
         drawtext(context, 
                  "robo24", 
                  k["key"], 
@@ -687,6 +666,20 @@ def draw_particles(context):
     dt = context.pyclock.tick() / 1000
     context.particle_group.update(dt)
 
+def draw_testmode(context):
+    """
+    Draws the test mode indicators on the screen.
+
+    Args:
+        context (Context): The game context containing display information.
+    """
+    if not context.button_test:
+        return
+
+    xpos = 20
+    drawtext(
+        context, "robo36", "Button Test ON", xpos, 400, (255, 255, 255), (0, 0, 0)
+    )
 
 def render_all(context):
     """
@@ -718,6 +711,7 @@ def render_all(context):
 
     draw_particles(context)
     # draw LED and debugging if config.PLATFORM is not rpi
+    draw_testmode(context)
     draw_leds(context)
 
     pygame.display.flip()

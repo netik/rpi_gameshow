@@ -3,6 +3,7 @@ Context is a container for all the game's global variables.
 """
 
 import os
+import json
 import pickle
 from typing import Optional, Dict, List, Any
 
@@ -21,7 +22,6 @@ class Context:
         # I/O pyserial device
         self.serial_port: Optional[Any] = None
 
-        # globals
         self.pyclock: pygame.time.Clock = pygame.time.Clock()
         self.clock: int = config.MAX_CLOCK
         self.prev_sec: int = 0
@@ -40,8 +40,8 @@ class Context:
 
         # game state
         self.player_buzzed_in: int = -1
-
         self.state: GameState = GameState.IDLE if config.CLOCK_ENABLED else GameState.RUNNING
+        self.button_test: bool = False
 
         # load sound effects
         self.sound: Sound = Sound()
@@ -93,3 +93,8 @@ class Context:
         """
         self.fonts[shortname] = pygame.font.Font(os.path.join("fonts", filename), size)
 
+    def dump(self):
+        """
+        Dumps the current context state to the console. Handy for debugging.
+        """
+        print(json.dumps(self.__dict__, indent=4, default=str))

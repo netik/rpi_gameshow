@@ -66,9 +66,13 @@ def handle_serial_input(context):
     if context.serial_port:
         if context.serial_port.inWaiting() > 0:
             received_data = context.serial_port.readline(context.serial_port.inWaiting())
-            print(f"recv: {str(received_data)}") if DEBUG_SERIAL else None
+            if DEBUG_SERIAL:
+                print(f"recv: {str(received_data)}")
             parts = received_data.split()
             if ( parts and len(parts) >= 3 ):
+                if context.button_test:
+                    context.sound.play(['ONE','TWO','THREE','FOUR'][int(parts[1]) - 1])
+
                 if (
                     parts[0] == b"SWITCH"
                     and parts[2] == b"PRESSED"
@@ -162,6 +166,10 @@ def handle_keyboard_event(context, event):
     # any keypress will take us out of buzzed in.
     if context.state == GameState.BUZZIN:
         context.state = GameState.IDLE
+        
+    # handle button test mode
+    if event.key == pygame.K_d and pygame.key.get_mods() & pygame.KMOD_SHIFT:
+        context.button_test = not context.button_test
 
     # handle quit event (shift-escape)
     if event.key == pygame.K_ESCAPE and pygame.key.get_mods() & pygame.KMOD_SHIFT:
@@ -200,16 +208,24 @@ def handle_keyboard_event(context, event):
         keypad_keys = [pygame.K_KP1, pygame.K_KP2, pygame.K_KP3, pygame.K_KP4]
         for i, key in enumerate(keypad_keys):
             if event.key == key:
-                button_event(context, config.PLAYER_MAP[i])
+                if context.button_test:
+                    context.sound.play(['ONE','TWO','THREE','FOUR'][i])
+
+                if context.state == GameState.RUNNING:
+                    button_event(context, config.PLAYER_MAP[i])
                 break
 
     # PC mode button emulation
-    if config.PLATFORM == "pc" and context.state == GameState.RUNNING:
+    if config.PLATFORM == "pc":
         # Z,X,C,V keys for PC mode
         pc_keys = [pygame.K_z, pygame.K_x, pygame.K_c, pygame.K_v]
         for i, key in enumerate(pc_keys):
             if event.key == key:
-                button_event(context, config.PLAYER_MAP[i])
+                if context.button_test:
+                    context.sound.play(['ONE','TWO','THREE','FOUR'][i])
+
+                if context.state == GameState.RUNNING:
+                    button_event(context, config.PLAYER_MAP[i])
                 break
 
     # sounds
@@ -322,8 +338,7 @@ def handle_buzz_in(context):
              120
          ),
          500
-     )
-   
+     ) 
 
 def event_loop(context):
     """
