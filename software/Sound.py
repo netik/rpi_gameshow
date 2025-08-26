@@ -12,16 +12,27 @@ import pygame
 import game_config as config
 
 # Required sound files that must be present
-REQUIRED_SOUNDS = ['BEEP', 'BUZZ', 'TIMESUP', 'PLAYER1', 'PLAYER2', 'PLAYER3', 'PLAYER4', 'INVALID']
-TEST_SOUNDS = ['ONE', 'TWO', 'THREE', 'FOUR']
+REQUIRED_SOUNDS = [
+    "BEEP",
+    "BUZZ",
+    "TIMESUP",
+    "PLAYER1",
+    "PLAYER2",
+    "PLAYER3",
+    "PLAYER4",
+    "INVALID",
+]
+TEST_SOUNDS = ["ONE", "TWO", "THREE", "FOUR"]
+
+
 class Sound:
     """
     Sound management class for all sound operations.
-    
+
     This class handles loading sound files from the configured directory
     and provides methods to play them during gameplay.
     """
-    
+
     def __init__(self) -> None:
         """Initialize the sound system and load all sound files."""
         self.sounds: Dict[str, pygame.mixer.Sound] = {}
@@ -33,7 +44,7 @@ class Sound:
     def play(self, sound_name: str) -> None:
         """
         Play a sound by name.
-        
+
         Args:
             sound_name: Name of the sound to play (without extension)
         """
@@ -42,14 +53,14 @@ class Sound:
     def load_sounds(self) -> None:
         """
         Load all sounds from the configured sound directory.
-        
+
         This method scans the sound directory for files with the configured
         extension and loads them into the sounds dictionary. It also
         validates that all required sounds are present.
         """
         print("Loading sounds...")
         sound_path = config.SOUND_SET_DIR
-        
+
         for dirpath, _, filenames in os.walk(sound_path):
             print(f"Found directory: {dirpath}")
             print(f"Files: {filenames}")
@@ -79,4 +90,3 @@ class Sound:
                 self.sounds[key].set_volume(0.5)
 
         print("All Sounds loaded.")
-        

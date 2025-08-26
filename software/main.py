@@ -28,6 +28,9 @@ from render import init_game, render_all
 from events import event_loop
 
 def main():
+    """
+    Initializes the game context, hardware, and starts the main event loop.
+    """
     context = Context()
     context.restore()
     setup_gpio(context)

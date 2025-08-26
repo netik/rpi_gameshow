@@ -19,35 +19,37 @@ from drawutil import drawtext
 class NameEditor:
     """
     Modal dialog for editing player names.
-    
+
     This class provides a user interface for editing the names of all players
     in the game. It supports keyboard navigation between fields and saves
     changes to the game state.
     """
-    
+
     # Class-level constants
     INPUT_FONT_SIZE: int = 60
     INPUTS_OFFSET: int = 150  # Offset from top of modal where inputs begin
-    LABEL_OFFSET: int = 100   # Offset from top of modal where labels begin
-    
+    LABEL_OFFSET: int = 100  # Offset from top of modal where labels begin
+
     def __init__(self, context: Context) -> None:
         """
         Initialize the name editor modal.
-        
+
         Args:
             context: Game context containing screen and player data
         """
         self.context = context
-        
+
         # Ensure screen_info is initialized
         if self.context.screen_info is None:
             self.context.screen_info = pygame.display.Info()
-            
+
         self.width = context.screen_info.current_w * 0.15  # 85% total
         self.height = context.screen_info.current_h * 0.10  # 75% total
-        
+
         # Setup fonts
-        self.context.load_font("namefont", "RobotoCondensed-Bold.ttf", self.INPUT_FONT_SIZE)    
+        self.context.load_font(
+            "namefont", "RobotoCondensed-Bold.ttf", self.INPUT_FONT_SIZE
+        )
 
         self.input_height = context.fonts["namefont"].get_height()
         self.input_spacing = self.input_height * 2  # Spacing between inputs
@@ -59,7 +61,7 @@ class NameEditor:
     def run(self) -> None:
         """
         Run the name editor modal.
-        
+
         This method handles the main interaction loop for editing player names.
         It processes keyboard input, manages navigation between fields, and
         saves changes to the game state.
@@ -105,7 +107,7 @@ class NameEditor:
             centerx=self.context.screen_info.current_w / 2,
             centery=self.height + self.input_height - 10,
             fontname="fonts/RobotoCondensed-Bold.ttf",
-            fontsize=self.INPUT_FONT_SIZE - 20
+            fontsize=self.INPUT_FONT_SIZE - 20,
         )
 
         for i in range(0, config.PLAYERS):
@@ -140,13 +142,13 @@ class NameEditor:
                 xpos,
                 self.height + self.INPUTS_OFFSET + (i * self.input_spacing),
                 config.THEME_COLORS["name_input_inactive_fg"],
-                config.THEME_COLORS["name_input_inactive_bg"]
+                config.THEME_COLORS["name_input_inactive_bg"],
             )
 
         # This manager allows 10 char names
-        limit_10 = lambda x: len(x) <= 10  
+        limit_10 = lambda x: len(x) <= 10
         textmanager = pygame_textinput.TextInputManager(validator=limit_10)
-        
+
         def make_textinput() -> pygame_textinput.TextInputVisualizer:
             """Create a new text input visualizer with current settings."""
             return pygame_textinput.TextInputVisualizer(
@@ -164,7 +166,7 @@ class NameEditor:
 
         pygame.key.set_repeat(200, 25)
         clock = pygame.time.Clock()
-        
+
         while True:
             # Clear the text input box, make it grey and put the text back.
             pygame.draw.rect(
@@ -174,10 +176,10 @@ class NameEditor:
                     xpos - 4,
                     self.height + self.INPUTS_OFFSET + (editing * self.input_spacing),
                     self.context.screen_info.current_w - (self.width * 2) - 120,
-                    self.input_height
-                )
+                    self.input_height,
+                ),
             )
-            
+
             events = pygame.event.get()
             # Pass all of the events to textinput for input handling
             textinput.update(events)
@@ -196,7 +198,7 @@ class NameEditor:
                     self.context.player_names[editing] = textinput.value.strip()
                     self.context.save()
                     return
-                
+
                 if event.type == pygame.KEYDOWN and (
                     event.key
                     in (pygame.K_UP, pygame.K_DOWN, pygame.K_RETURN, pygame.K_TAB)
@@ -211,10 +213,12 @@ class NameEditor:
                         config.THEME_COLORS["name_input_inactive_bg"],
                         (
                             xpos - 4,
-                            self.height + self.INPUTS_OFFSET + (editing * self.input_spacing),
+                            self.height
+                            + self.INPUTS_OFFSET
+                            + (editing * self.input_spacing),
                             self.context.screen_info.current_w - (self.width * 2) - 120,
-                            self.input_height
-                        )
+                            self.input_height,
+                        ),
                     )
 
                     drawtext(
@@ -222,9 +226,11 @@ class NameEditor:
                         "namefont",
                         self.context.player_names[editing],
                         xpos,
-                        self.height + self.INPUTS_OFFSET + (editing * self.input_spacing),
+                        self.height
+                        + self.INPUTS_OFFSET
+                        + (editing * self.input_spacing),
                         config.THEME_COLORS["name_input_inactive_fg"],
-                        config.THEME_COLORS["name_input_inactive_bg"]
+                        config.THEME_COLORS["name_input_inactive_bg"],
                     )
 
                     # Move to the next row or go up if requested
@@ -258,8 +264,10 @@ class NameEditor:
                     self.context.screen,
                     (30, 30, 30),
                     (
-                        xpos-4,
-                        self.height + self.INPUTS_OFFSET + (editing * self.input_spacing),
+                        xpos - 4,
+                        self.height
+                        + self.INPUTS_OFFSET
+                        + (editing * self.input_spacing),
                         self.context.screen_info.current_w - (self.width * 2) - 120,
                         self.input_height,
                     ),
@@ -269,7 +277,10 @@ class NameEditor:
             # Use the original positioning to maintain compatibility
             self.context.screen.blit(
                 textinput.surface,
-                (xpos, self.height + self.INPUTS_OFFSET + (editing * self.input_spacing)),
+                (
+                    xpos,
+                    self.height + self.INPUTS_OFFSET + (editing * self.input_spacing),
+                ),
             )
 
             clock.tick(30)
