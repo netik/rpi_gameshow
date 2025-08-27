@@ -241,7 +241,10 @@ class TestKeyboardEvent:
         mock_event = Mock()
         mock_event.key = pygame.K_a
         
-        with patch('events.set_all_leds') as mock_set_leds:
+        with patch('events.set_all_leds') as mock_set_leds, \
+             patch('pygame.key.get_mods') as mock_get_mods:
+            mock_get_mods.return_value = 0  # No shift modifier
+            
             handle_keyboard_event(mock_context, mock_event)
             
             assert mock_context.state == GameState.IDLE
@@ -263,7 +266,7 @@ class TestKeyboardEvent:
             
             handle_keyboard_event(mock_context, mock_event)
             
-            mock_print.assert_called_with("\n\n Clean Exit: exiting at user request...")
+            mock_print.assert_called_with("\n\nClean Exit: exiting at user request...")
             mock_display_quit.assert_called_once()
             mock_pygame_quit.assert_called_once()
             mock_sys_exit.assert_called_once()

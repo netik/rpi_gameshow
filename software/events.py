@@ -173,7 +173,7 @@ def handle_keyboard_event(context, event):
 
     # handle quit event (shift-escape)
     if event.key == pygame.K_ESCAPE and pygame.key.get_mods() & pygame.KMOD_SHIFT:
-        print("\n\n Clean Exit: exiting at user request...")
+        print("\n\nClean Exit: exiting at user request...")
         pygame.display.quit()
         pygame.quit()
         sys.exit()
